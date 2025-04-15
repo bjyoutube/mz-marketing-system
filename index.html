@@ -184,20 +184,46 @@
 
         <!-- 메인 콘텐츠 영역 -->
         <div class="flex flex-col md:flex-row gap-6">
-            <!-- 사이드바 -->
-            <div class="w-full md:w-64 mb-6 md:mb-0">
-                <div class="card bg-white p-4">
-                    <h3 class="font-bold text-lg mb-4 text-gray-800">업체 목록</h3>
-                    <div class="mb-4">
-                        <button id="add-company-btn" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200">
-                            <i class="fas fa-plus mr-2"></i>업체 추가
-                        </button>
-                    </div>
-                    <div id="company-list" class="space-y-2">
-                        <!-- 업체 탭은 JavaScript로 추가됨 -->
-                    </div>
-                </div>
+            네, 사이드바의 업체 목록 부분을 최신 계약 날짜순으로 정렬하고 검색 기능을 추가하겠습니다. 아래는 수정된 코드입니다:
+
+Copy<!-- 사이드바 -->
+<div class="w-full md:w-64 mb-6 md:mb-0">
+    <div class="card bg-white p-4 rounded-lg shadow-md">
+        <h3 class="font-bold text-lg mb-4 text-gray-800">업체 목록</h3>
+        
+        <!-- 업체 검색 기능 추가 -->
+        <div class="mb-4">
+            <div class="relative">
+                <input type="text" id="sidebar-company-search" placeholder="업체명 검색..." 
+                    class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <span class="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </span>
             </div>
+        </div>
+        
+        <div class="mb-4">
+            <button id="add-company-btn" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200">
+                <i class="fas fa-plus mr-2"></i>업체 추가
+            </button>
+        </div>
+        
+        <!-- 정렬 옵션 추가 -->
+        <div class="mb-4">
+            <select id="sidebar-company-sort" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="newest-contract">최신 계약일순</option>
+                <option value="name">업체명순</option>
+                <option value="amount">계약금액순</option>
+            </select>
+        </div>
+        
+        <div id="company-list" class="space-y-2 max-h-96 overflow-y-auto">
+            <!-- 업체 탭은 JavaScript로 추가됨 -->
+            <div class="py-2 text-center text-gray-500 text-sm">로딩 중...</div>
+        </div>
+    </div>
 
             <!-- 메인 콘텐츠 -->
             <div class="flex-1">
