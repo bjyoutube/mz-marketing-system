@@ -1,193 +1,231 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-    <meta charset="utf-8">
-    <title>회사 데이터 관리 시스템</title>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MZ 마케팅 전산시스템</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-      }
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
-      label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-      }
-      input[type="text"] {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-      }
-      button {
-        background-color: #4285f4;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        cursor: pointer;
-        font-size: 16px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-      }
-      th, td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-      }
-      th {
-        background-color: #f2f2f2;
-      }
-      .tabs {
-        display: flex;
-        margin-bottom: 20px;
-      }
-      .tab {
-        padding: 10px 15px;
-        background-color: #f2f2f2;
-        cursor: pointer;
-      }
-      .tab.active {
-        background-color: #4285f4;
-        color: white;
-      }
-      .tab-content {
-        display: none;
-      }
-      .tab-content.active {
-        display: block;
-      }
+        /* 스타일 시작 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+            margin-bottom: 20px;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 15px;
+        }
+
+        .dashboard {
+            margin-bottom: 30px;
+        }
+
+        .dashboard-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .data-section {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        /* 스타일 끝 */
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <h1>회사 데이터 관리 시스템</h1>
-      
-      <div class="tabs">
-        <div class="tab active" onclick="openTab('input')">데이터 입력</div>
-        <div class="tab" onclick="openTab('view')">데이터 조회</div>
-      </div>
-      
-      <div id="input" class="tab-content active">
-        <h2>새 데이터 입력</h2>
-        <form id="dataForm" onsubmit="submitForm(); return false;">
-          <div class="form-group">
-            <label for="name">이름:</label>
-            <input type="text" id="name" name="name" required>
-          </div>
-          <div class="form-group">
-            <label for="department">부서:</label>
-            <input type="text" id="department" name="department" required>
-          </div>
-          <div class="form-group">
-            <label for="contract">계약정보:</label>
-            <input type="text" id="contract" name="contract">
-          </div>
-          <div class="form-group">
-            <label for="userid">아이디 사용여부:</label>
-            <select id="userid" name="userid">
-              <option value="사용">사용</option>
-              <option value="미사용">미사용</option>
-            </select>
-          </div>
-          <button type="submit">저장하기</button>
-        </form>
-      </div>
-      
-      <div id="view" class="tab-content">
-        <h2>데이터 조회</h2>
-        <button onclick="loadData()">데이터 새로고침</button>
-        <div id="dataTable"></div>
-      </div>
+        <header>
+            <h1>MZ 마케팅 전산시스템</h1>
+        </header>
+        
+        <section class="dashboard">
+            <h2>대시보드</h2>
+            <div class="dashboard-cards">
+                <div class="card">
+                    <h3>총 계약업체</h3>
+                    <p class="number" id="totalCompanies">로딩중...</p>
+                </div>
+                <div class="card">
+                    <h3>이번달 계약</h3>
+                    <p class="number" id="monthlyContracts">로딩중...</p>
+                </div>
+                <div class="card">
+                    <h3>이번달 총매출</h3>
+                    <p class="number" id="monthlySales">로딩중...</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="data-section">
+            <h2>계약 정보</h2>
+            <div id="dataTable">데이터를 불러오는 중...</div>
+        </section>
     </div>
-    
+
     <script>
-      // 페이지 로드 시 실행
-      document.addEventListener('DOMContentLoaded', function() {
-        loadData();
-      });
-      
-      // 탭 전환 함수
-      function openTab(tabName) {
-        const tabs = document.getElementsByClassName('tab');
-        const tabContents = document.getElementsByClassName('tab-content');
-        
-        for (let i = 0; i < tabs.length; i++) {
-          tabs[i].classList.remove('active');
-        }
-        
-        for (let i = 0; i < tabContents.length; i++) {
-          tabContents[i].classList.remove('active');
-        }
-        
-        document.getElementById(tabName).classList.add('active');
-        document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
-      }
-      
-      // 폼 제출 처리
-      function submitForm() {
-        const name = document.getElementById('name').value;
-        const department = document.getElementById('department').value;
-        const contract = document.getElementById('contract').value;
-        const userid = document.getElementById('userid').value;
-        
-        google.script.run
-          .withSuccessHandler(onSuccess)
-          .addData([name, department, contract, userid]);
-      }
-      
-      // 성공 처리
-      function onSuccess(message) {
-        alert(message);
-        document.getElementById('dataForm').reset();
-        loadData();
-      }
-      
-      // 데이터 불러오기
-      function loadData() {
-        google.script.run
-          .withSuccessHandler(displayData)
-          .getSheetData();
-      }
-      
-      // 데이터 표시
-      function displayData(data) {
-        const tableDiv = document.getElementById('dataTable');
-        let tableHTML = '<table><tr>';
-        
-        // 헤더 행 처리
-        const headers = data[0];
-        for (let i = 0; i < headers.length; i++) {
-          tableHTML += `<th>${headers[i]}</th>`;
-        }
-        tableHTML += '</tr>';
-        
-        // 데이터 행 처리
-        for (let i = 1; i < data.length; i++) {
-          tableHTML += '<tr>';
-          for (let j = 0; j < data[i].length; j++) {
-            let cellData = data[i][j];
-            // 날짜 형식 처리
-            if (cellData instanceof Date) {
-              cellData = cellData.toLocaleDateString();
+        // 자바스크립트 시작
+        // 구글 스프레드시트 ID
+        const SHEET_ID = '스프레드시트ID를_여기에_입력하세요';
+        // 공개 액세스를 위한 URL (나중에 설정)
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            // 데이터 로드
+            loadDashboardData();
+            loadContractData();
+        });
+
+        // 대시보드 데이터 로드
+        async function loadDashboardData() {
+            try {
+                // 실제로는 여기서 구글 스프레드시트에서 데이터를 가져와야 함
+                // 지금은 테스트용 데이터로 표시
+                document.getElementById('totalCompanies').textContent = '42';
+                document.getElementById('monthlyContracts').textContent = '8';
+                document.getElementById('monthlySales').textContent = '₩24,500,000';
+                
+                // 추후에 아래와 같이 실제 데이터를 불러올 예정입니다.
+                /*
+                const response = await fetch('스프레드시트_데이터_URL');
+                const data = await response.json();
+                
+                document.getElementById('totalCompanies').textContent = data.totalCompanies;
+                document.getElementById('monthlyContracts').textContent = data.monthlyContracts;
+                document.getElementById('monthlySales').textContent = 
+                    new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' })
+                    .format(data.monthlySales);
+                */
+            } catch (error) {
+                console.error('대시보드 데이터 로드 중 오류 발생:', error);
             }
-            tableHTML += `<td>${cellData}</td>`;
-          }
-          tableHTML += '</tr>';
         }
-        
-        tableHTML += '</table>';
-        tableDiv.innerHTML = tableHTML;
-      }
+
+        // 계약 데이터 로드
+        async function loadContractData() {
+            try {
+                // 테스트용 데이터
+                const testData = [
+                    { company: '가나다 주식회사', contractDate: '2024-04-01', amount: '₩5,000,000', status: '진행중' },
+                    { company: '마바사 기업', contractDate: '2024-04-05', amount: '₩7,500,000', status: '진행중' },
+                    { company: '아자차 상사', contractDate: '2024-03-15', amount: '₩12,000,000', status: '완료' }
+                ];
+                
+                displayContractData(testData);
+                
+                // 추후에는 아래와 같이 실제 데이터를 불러올 예정입니다.
+                /*
+                const response = await fetch('스프레드시트_데이터_URL');
+                const data = await response.json();
+                displayContractData(data);
+                */
+            } catch (error) {
+                console.error('계약 데이터 로드 중 오류 발생:', error);
+            }
+        }
+
+        // 계약 데이터 표시
+        function displayContractData(data) {
+            const tableContainer = document.getElementById('dataTable');
+            
+            // 테이블 생성
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>회사명</th>
+                            <th>계약일</th>
+                            <th>계약금액</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // 데이터 행 추가
+            data.forEach(item => {
+                tableHTML += `
+                    <tr>
+                        <td>${item.company}</td>
+                        <td>${item.contractDate}</td>
+                        <td>${item.amount}</td>
+                        <td>${item.status}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            tableContainer.innerHTML = tableHTML;
+        }
+        // 자바스크립트 끝
     </script>
-  </body>
+</body>
 </html>
