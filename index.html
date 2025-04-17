@@ -1,28 +1,193 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>계정 관리 시스템</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100">
-    <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold text-center my-4">계정 관리 시스템</h1>
-        
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4">계정 정보 입력</h2>
-            
-            <!-- 여기에 구글 폼 임베드 코드를 붙여넣으세요 -->
-            <iframe src="여기에_구글폼_URL_넣기" width="100%" height="800px" frameborder="0" marginheight="0" marginwidth="0">로드 중...</iframe>
-        </div>
-        
-        <div class="bg-white p-6 rounded-lg shadow-md mt-8">
-            <h2 class="text-xl font-semibold mb-4">저장된 계정 보기</h2>
-            
-            <!-- 여기에 스프레드시트 임베드 코드를 붙여넣으세요 -->
-            <iframe src="여기에_스프레드시트_URL_넣기" width="100%" height="500px" frameborder="0" marginheight="0" marginwidth="0">로드 중...</iframe>
-        </div>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <title>회사 데이터 관리 시스템</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #4285f4;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .tabs {
+        display: flex;
+        margin-bottom: 20px;
+      }
+      .tab {
+        padding: 10px 15px;
+        background-color: #f2f2f2;
+        cursor: pointer;
+      }
+      .tab.active {
+        background-color: #4285f4;
+        color: white;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>회사 데이터 관리 시스템</h1>
+      
+      <div class="tabs">
+        <div class="tab active" onclick="openTab('input')">데이터 입력</div>
+        <div class="tab" onclick="openTab('view')">데이터 조회</div>
+      </div>
+      
+      <div id="input" class="tab-content active">
+        <h2>새 데이터 입력</h2>
+        <form id="dataForm" onsubmit="submitForm(); return false;">
+          <div class="form-group">
+            <label for="name">이름:</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+            <label for="department">부서:</label>
+            <input type="text" id="department" name="department" required>
+          </div>
+          <div class="form-group">
+            <label for="contract">계약정보:</label>
+            <input type="text" id="contract" name="contract">
+          </div>
+          <div class="form-group">
+            <label for="userid">아이디 사용여부:</label>
+            <select id="userid" name="userid">
+              <option value="사용">사용</option>
+              <option value="미사용">미사용</option>
+            </select>
+          </div>
+          <button type="submit">저장하기</button>
+        </form>
+      </div>
+      
+      <div id="view" class="tab-content">
+        <h2>데이터 조회</h2>
+        <button onclick="loadData()">데이터 새로고침</button>
+        <div id="dataTable"></div>
+      </div>
     </div>
-</body>
+    
+    <script>
+      // 페이지 로드 시 실행
+      document.addEventListener('DOMContentLoaded', function() {
+        loadData();
+      });
+      
+      // 탭 전환 함수
+      function openTab(tabName) {
+        const tabs = document.getElementsByClassName('tab');
+        const tabContents = document.getElementsByClassName('tab-content');
+        
+        for (let i = 0; i < tabs.length; i++) {
+          tabs[i].classList.remove('active');
+        }
+        
+        for (let i = 0; i < tabContents.length; i++) {
+          tabContents[i].classList.remove('active');
+        }
+        
+        document.getElementById(tabName).classList.add('active');
+        document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
+      }
+      
+      // 폼 제출 처리
+      function submitForm() {
+        const name = document.getElementById('name').value;
+        const department = document.getElementById('department').value;
+        const contract = document.getElementById('contract').value;
+        const userid = document.getElementById('userid').value;
+        
+        google.script.run
+          .withSuccessHandler(onSuccess)
+          .addData([name, department, contract, userid]);
+      }
+      
+      // 성공 처리
+      function onSuccess(message) {
+        alert(message);
+        document.getElementById('dataForm').reset();
+        loadData();
+      }
+      
+      // 데이터 불러오기
+      function loadData() {
+        google.script.run
+          .withSuccessHandler(displayData)
+          .getSheetData();
+      }
+      
+      // 데이터 표시
+      function displayData(data) {
+        const tableDiv = document.getElementById('dataTable');
+        let tableHTML = '<table><tr>';
+        
+        // 헤더 행 처리
+        const headers = data[0];
+        for (let i = 0; i < headers.length; i++) {
+          tableHTML += `<th>${headers[i]}</th>`;
+        }
+        tableHTML += '</tr>';
+        
+        // 데이터 행 처리
+        for (let i = 1; i < data.length; i++) {
+          tableHTML += '<tr>';
+          for (let j = 0; j < data[i].length; j++) {
+            let cellData = data[i][j];
+            // 날짜 형식 처리
+            if (cellData instanceof Date) {
+              cellData = cellData.toLocaleDateString();
+            }
+            tableHTML += `<td>${cellData}</td>`;
+          }
+          tableHTML += '</tr>';
+        }
+        
+        tableHTML += '</table>';
+        tableDiv.innerHTML = tableHTML;
+      }
+    </script>
+  </body>
 </html>
