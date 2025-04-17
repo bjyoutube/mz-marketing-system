@@ -240,11 +240,8 @@
 
     <script>
         // 자바스크립트 시작
-        // 구글 스프레드시트 ID와 연동을 위한 설정
-        const SHEET_ID = '스프레드시트ID를_여기에_입력하세요';
-        
-        // 구글 Apps Script 웹앱 URL (나중에 설정)
-        const WEBAPP_URL = '구글_앱스_스크립트_웹앱_URL';
+        // 구글 Apps Script 웹앱 URL
+        const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzxiAI4jRau20USiAebOEsz2uEZh9AO_PJNhVvZjX21I3Mf9m3D12CC3s43yVSU4J0y/exec';
         
         // 계약 데이터 배열 (실제로는 스프레드시트에서 불러옴)
         let contractData = [];
@@ -264,13 +261,7 @@
         // 대시보드 데이터 로드
         function loadDashboardData() {
             try {
-                // 테스트용 데이터로 표시 (실제로는 스프레드시트에서 계산된 값을 가져와야 함)
-                document.getElementById('totalCompanies').textContent = '42';
-                document.getElementById('monthlyContracts').textContent = '8';
-                document.getElementById('monthlySales').textContent = '₩24,500,000';
-                
-                // 실제 데이터 로드 구현 (추후 개발)
-                /*
+                // 실제 데이터 로드
                 fetch(`${WEBAPP_URL}?action=getDashboard`)
                     .then(response => response.json())
                     .then(data => {
@@ -279,36 +270,52 @@
                         document.getElementById('monthlySales').textContent = 
                             new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' })
                             .format(data.monthlySales);
+                    })
+                    .catch(error => {
+                        console.error('대시보드 데이터 로드 중 오류 발생:', error);
+                        // 오류 시 테스트 데이터 표시
+                        document.getElementById('totalCompanies').textContent = '42';
+                        document.getElementById('monthlyContracts').textContent = '8';
+                        document.getElementById('monthlySales').textContent = '₩24,500,000';
                     });
-                */
             } catch (error) {
                 console.error('대시보드 데이터 로드 중 오류 발생:', error);
+                // 오류 시 테스트 데이터 표시
+                document.getElementById('totalCompanies').textContent = '42';
+                document.getElementById('monthlyContracts').textContent = '8';
+                document.getElementById('monthlySales').textContent = '₩24,500,000';
             }
         }
         
         // 계약 데이터 로드
         function loadContractData() {
             try {
-                // 테스트용 데이터 (실제로는 스프레드시트에서 가져와야 함)
-                contractData = [
-                    { id: 1, company: '가나다 주식회사', contractDate: '2024-04-01', amount: 5000000, status: '진행중' },
-                    { id: 2, company: '마바사 기업', contractDate: '2024-04-05', amount: 7500000, status: '진행중' },
-                    { id: 3, company: '아자차 상사', contractDate: '2024-03-15', amount: 12000000, status: '완료' }
-                ];
-                
-                displayContractData();
-                
-                // 실제 데이터 로드 구현 (추후 개발)
-                /*
+                // 실제 데이터 로드
                 fetch(`${WEBAPP_URL}?action=getContracts`)
                     .then(response => response.json())
                     .then(data => {
                         contractData = data;
                         displayContractData();
+                    })
+                    .catch(error => {
+                        console.error('계약 데이터 로드 중 오류 발생:', error);
+                        // 오류 시 테스트 데이터 사용
+                        contractData = [
+                            { id: 1, company: '가나다 주식회사', contractDate: '2024-04-01', amount: 5000000, status: '진행중' },
+                            { id: 2, company: '마바사 기업', contractDate: '2024-04-05', amount: 7500000, status: '진행중' },
+                            { id: 3, company: '아자차 상사', contractDate: '2024-03-15', amount: 12000000, status: '완료' }
+                        ];
+                        displayContractData();
                     });
-                */
             } catch (error) {
                 console.error('계약 데이터 로드 중 오류 발생:', error);
+                // 오류 시 테스트 데이터 사용
+                contractData = [
+                    { id: 1, company: '가나다 주식회사', contractDate: '2024-04-01', amount: 5000000, status: '진행중' },
+                    { id: 2, company: '마바사 기업', contractDate: '2024-04-05', amount: 7500000, status: '진행중' },
+                    { id: 3, company: '아자차 상사', contractDate: '2024-03-15', amount: 12000000, status: '완료' }
+                ];
+                displayContractData();
             }
         }
         
@@ -433,7 +440,7 @@
                     status: editedStatus
                 };
                 
-                // 스프레드시트 업데이트 (실제 구현 시)
+                // 스프레드시트 업데이트
                 updateSpreadsheet(id, contractData[itemIndex]);
                 
                 // 테이블 다시 그리기
@@ -447,7 +454,7 @@
                 // 데이터에서 해당 항목 제거
                 contractData = contractData.filter(contract => contract.id !== id);
                 
-                // 스프레드시트에서 삭제 (실제 구현 시)
+                // 스프레드시트에서 삭제
                 deleteFromSpreadsheet(id);
                 
                 // 테이블 다시 그리기
@@ -458,12 +465,10 @@
             }
         }
         
-        // 스프레드시트 업데이트 (실제 구현 시 사용)
+        // 스프레드시트 업데이트
         function updateSpreadsheet(id, data) {
             console.log('스프레드시트 업데이트:', id, data);
             
-            // 실제 구현 (추후 개발)
-            /*
             fetch(WEBAPP_URL, {
                 method: 'POST',
                 headers: {
@@ -485,15 +490,12 @@
                 console.error('Error updating spreadsheet:', error);
                 alert('데이터 업데이트 중 오류가 발생했습니다.');
             });
-            */
         }
         
-        // 스프레드시트에서 삭제 (실제 구현 시 사용)
+        // 스프레드시트에서 삭제
         function deleteFromSpreadsheet(id) {
             console.log('스프레드시트에서 삭제:', id);
             
-            // 실제 구현 (추후 개발)
-            /*
             fetch(WEBAPP_URL, {
                 method: 'POST',
                 headers: {
@@ -514,7 +516,6 @@
                 console.error('Error deleting from spreadsheet:', error);
                 alert('데이터 삭제 중 오류가 발생했습니다.');
             });
-            */
         }
         
         // 새 계약 추가 폼 표시
@@ -562,7 +563,7 @@
             // 데이터에 추가
             contractData.push(newContract);
             
-            // 스프레드시트에 추가 (실제 구현 시)
+            // 스프레드시트에 추가
             addToSpreadsheet(newContract);
             
             // 테이블 다시 그리기
@@ -575,12 +576,10 @@
             loadDashboardData();
         }
         
-        // 스프레드시트에 새 계약 추가 (실제 구현 시 사용)
+        // 스프레드시트에 새 계약 추가
         function addToSpreadsheet(data) {
             console.log('스프레드시트에 추가:', data);
             
-            // 실제 구현 (추후 개발)
-            /*
             fetch(WEBAPP_URL, {
                 method: 'POST',
                 headers: {
@@ -601,7 +600,6 @@
                 console.error('Error adding to spreadsheet:', error);
                 alert('데이터 추가 중 오류가 발생했습니다.');
             });
-            */
         }
         // 자바스크립트 끝
     </script>
