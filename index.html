@@ -1,57 +1,250 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <title>네이버 계정 관리 시스템</title>
-  <meta charset="UTF-8">
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f5f5f5;
-    }
-    h1 {
-      color: #03C75A;  /* 네이버 색상 */
-      text-align: center;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .iframe-container {
-      width: 100%;
-      margin-top: 20px;
-    }
-    iframe {
-      width: 100%;
-      height: 500px;
-      border: 1px solid #ddd;
-    }
-    .notice {
-      background-color: #FFF3CD;
-      color: #856404;
-      padding: 10px;
-      border-radius: 5px;
-      margin-top: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>네이버 계정 관리 시스템</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
 </head>
-<body>
-  <div class="container">
-    <h1>네이버 계정 관리 시스템</h1>
-    
-    <div class="iframe-container">
-      <!-- 여기에 스프레드시트 iframe을 삽입합니다 -->
-      <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQsSUEWlGqZ9W-l-rQEwLksmOKXEEkun2Dn0KXuWFcfMYtohCDHao1wgRme9e8eijCiJ1L-b6CMZzF_/pubhtml"></iframe>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="bg-blue-600 text-white rounded-lg shadow-lg p-6 mb-8">
+            <h1 class="text-3xl font-bold">네이버 계정 관리 시스템</h1>
+            <p class="mt-2">구글 스프레드시트와 연동된 간단한 계정 관리 예시</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 계정 추가 폼 섹션 -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800">새 계정 추가</h2>
+                <p class="mb-4 text-sm text-gray-600">아래 폼에 정보를 입력하면 구글 스프레드시트에 저장됩니다.</p>
+                
+                <form id="accountForm" class="space-y-4">
+                    <div>
+                        <label for="serviceName" class="block text-gray-700 font-medium mb-1">서비스 이름</label>
+                        <input type="text" id="serviceName" name="serviceName" placeholder="네이버" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="userId" class="block text-gray-700 font-medium mb-1">아이디</label>
+                        <input type="text" id="userId" name="userId" placeholder="naver_id" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-gray-700 font-medium mb-1">비밀번호</label>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" placeholder="••••••••" 
+                                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button type="button" id="togglePassword" class="absolute right-3 top-2.5 text-gray-500">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-red-500 mt-1">※ 주의: 실제 서비스에서는 비밀번호를 암호화하여 저장해야 합니다.</p>
+                    </div>
+                    
+                    <div>
+                        <label for="memo" class="block text-gray-700 font-medium mb-1">메모</label>
+                        <textarea id="memo" name="memo" rows="2" 
+                            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="계정 관련 메모를 입력하세요"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+                        계정 저장하기
+                    </button>
+                </form>
+                
+                <div id="formStatus" class="mt-4 p-3 rounded-lg hidden"></div>
+            </div>
+
+            <!-- 스프레드시트 연동 섹션 -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800">계정 목록 (스프레드시트 연동)</h2>
+                
+                <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h3 class="font-bold text-yellow-800">스프레드시트 연동 방법</h3>
+                    <p class="text-sm text-yellow-700 mt-1">아래는 스프레드시트를 웹페이지에 표시한 예시입니다. 실제 연동을 위해서는 다음 단계를 따르세요:</p>
+                    <ol class="list-decimal list-inside text-sm text-yellow-700 mt-2 space-y-1">
+                        <li>구글 스프레드시트 생성 (열: 타임스탬프, 서비스, 아이디, 비밀번호, 메모)</li>
+                        <li>파일 &gt; 웹에 게시 &gt; 시트 선택 &gt; 웹 페이지로 게시</li>
+                        <li>생성된 임베드 링크를 아래 iframe의 src에 붙여넣기</li>
+                    </ol>
+                </div>
+                
+                <!-- 스프레드시트 표시 영역 (실제 스프레드시트 URL 적용) -->
+                <div class="border rounded-lg p-2 bg-gray-50">
+                    <p class="text-sm text-center text-gray-500 mb-2">👇 여기에 게시된 스프레드시트가 표시됩니다 👇</p>
+                    
+                    <!-- 실제 스프레드시트 임베드 -->
+                    <div class="relative pt-[75%] overflow-hidden rounded border bg-white">
+                        <iframe class="absolute inset-0 w-full h-full" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQsSUEWlGqZ9W-l-rQEwLksmOKXEEkun2Dn0KXuWFcfMYtohCDHao1wgRme9e8eijCiJ1L-b6CMZzF_/pubhtml?widget=true&amp;headers=false"></iframe>
+                    </div>
+                </div>
+                
+                <!-- 데이터 테이블 예시 -->
+                <div class="mt-8">
+                    <h3 class="font-bold mb-3 text-gray-700">계정 목록 예시</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-2 bg-gray-100 border-b text-left text-xs font-semibold text-gray-600 uppercase">타임스탬프</th>
+                                    <th class="px-4 py-2 bg-gray-100 border-b text-left text-xs font-semibold text-gray-600 uppercase">서비스</th>
+                                    <th class="px-4 py-2 bg-gray-100 border-b text-left text-xs font-semibold text-gray-600 uppercase">아이디</th>
+                                    <th class="px-4 py-2 bg-gray-100 border-b text-left text-xs font-semibold text-gray-600 uppercase">비밀번호</th>
+                                    <th class="px-4 py-2 bg-gray-100 border-b text-left text-xs font-semibold text-gray-600 uppercase">메모</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="px-4 py-2 border-b">2023-04-10 14:25</td>
+                                    <td class="px-4 py-2 border-b">네이버</td>
+                                    <td class="px-4 py-2 border-b">example_id1</td>
+                                    <td class="px-4 py-2 border-b">••••••••</td>
+                                    <td class="px-4 py-2 border-b">회사 공식계정</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-2 border-b">2023-04-15 09:12</td>
+                                    <td class="px-4 py-2 border-b">네이버</td>
+                                    <td class="px-4 py-2 border-b">example_id2</td>
+                                    <td class="px-4 py-2 border-b">••••••••</td>
+                                    <td class="px-4 py-2 border-b">마케팅용 계정</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 연동 방법 가이드 -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">스프레드시트 연동 상세 가이드</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700">1. 구글 폼으로 연동하기</h3>
+                    <p class="mt-2 text-gray-600">가장 쉬운 방법은 구글 폼을 사용하는 것입니다:</p>
+                    <ol class="list-decimal list-inside mt-2 space-y-2 pl-4 text-gray-600">
+                        <li>구글 폼(Google Forms)에서 새 폼 생성</li>
+                        <li>필요한 필드 추가 (서비스명, 아이디, 비밀번호, 메모)</li>
+                        <li>응답 탭에서 스프레드시트 연결 선택</li>
+                        <li>폼 공유 링크를 받아 웹사이트에 임베드</li>
+                    </ol>
+                    <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-blue-700">
+                            구글 폼 HTML 코드 예시:<br>
+                            <code class="text-xs bg-blue-100 p-1 block mt-1 rounded">
+                                &lt;iframe src="https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?embedded=true" width="100%" height="500" frameborder="0" marginheight="0" marginwidth="0"&gt;로드 중...&lt;/iframe&gt;
+                            </code>
+                        </p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700">2. Google Apps Script 사용하기</h3>
+                    <p class="mt-2 text-gray-600">더 많은 제어와 기능이 필요하다면 Google Apps Script를 사용하세요:</p>
+                    
+                    <div class="mt-3 space-y-3">
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <p class="font-semibold text-gray-700">2-1. 스프레드시트에 스크립트 추가하기</p>
+                            <p class="text-sm text-gray-600 mt-1">스프레드시트 메뉴에서 '확장 프로그램 > Apps Script'를 선택하고 다음 코드를 입력:</p>
+                            <pre class="text-xs bg-gray-100 p-2 mt-2 rounded overflow-x-auto"><code>function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+    .setTitle('네이버 계정 관리 시스템');
+}
+
+function addAccount(data) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  sheet.appendRow([new Date(), data.service, data.userId, data.password, data.memo]);
+  return "계정이 성공적으로 저장되었습니다!";
+}
+
+function getAccounts() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  return data;
+}</code></pre>
+                        </div>
+                        
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <p class="font-semibold text-gray-700">2-2. HTML 파일 생성하기</p>
+                            <p class="text-sm text-gray-600 mt-1">'파일 > 새로 만들기 > HTML 파일'을 선택하고 이름을 'Index'로 지정한 후 HTML 코드 작성</p>
+                        </div>
+                        
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <p class="font-semibold text-gray-700">2-3. 웹 앱으로 배포하기</p>
+                            <p class="text-sm text-gray-600 mt-1">'배포 > 새 배포'를 클릭하고 유형을 '웹 앱'으로 선택한 후 배포</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 보안 주의사항 -->
+        <div class="mt-8 bg-red-50 rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold mb-2 text-red-700">⚠️ 보안 주의사항</h2>
+            <p class="text-red-600">이 예시는 교육 목적으로만 사용하세요. 실제 비밀번호를 평문으로 저장하는 것은 매우 위험합니다.</p>
+            <ul class="list-disc list-inside mt-2 space-y-1 text-red-600">
+                <li>비밀번호는 항상 암호화하여 저장해야 합니다.</li>
+                <li>중요한 계정 정보는 적절한 보안 조치가 있는 시스템을 사용하세요.</li>
+                <li>공개 스프레드시트에 중요 정보를 저장하지 마세요.</li>
+                <li>접근 권한을 제한하고 데이터 보호 정책을 준수하세요.</li>
+            </ul>
+        </div>
     </div>
-    
-    <div class="notice">
-      <p><strong>참고:</strong> 실제로는 비밀번호와 같은 민감한 정보를 이렇게 관리하는 것은 매우 위험합니다. 이 예시는 단지 스프레드시트와 웹사이트 연동의 개념을 설명하기 위한 것입니다.</p>
-    </div>
-  </div>
+
+    <footer class="bg-gray-800 text-white py-6 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>네이버 계정 관리 시스템 예시 - 구글 스프레드시트 연동</p>
+            <p class="text-gray-400 text-sm mt-2">이 페이지는 교육용으로 제작되었습니다.</p>
+        </div>
+    </footer>
+
+    <script>
+        // 비밀번호 표시/숨김 토글
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+        
+        // 폼 제출 시뮬레이션
+        document.getElementById('accountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formStatus = document.getElementById('formStatus');
+            formStatus.classList.remove('hidden', 'bg-green-100', 'bg-red-100');
+            formStatus.classList.add('bg-green-100');
+            formStatus.innerHTML = `
+                <p class="text-green-700">
+                    <i class="fas fa-check-circle mr-1"></i> 계정 정보가 성공적으로 저장되었습니다!
+                </p>
+                <p class="text-sm text-green-600 mt-1">
+                    실제 연동 시에는 구글 스프레드시트에 데이터가 추가됩니다.
+                </p>
+            `;
+            
+            // 폼 초기화
+            this.reset();
+            
+            // 3초 후 메시지 숨기기
+            setTimeout(() => {
+                formStatus.classList.add('hidden');
+            }, 3000);
+        });
+    </script>
 </body>
 </html>
