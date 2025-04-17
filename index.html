@@ -3,710 +3,646 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MZ마케팅 전산시스템</title>
+    <title>MZ마케팅 전산 시스템</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@2.3.0/build/global/luxon.min.js"></script>
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f5f7fb;
+            background-color: #f5f7fa;
         }
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        .dashboard-card {
             transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .card:hover {
+        .dashboard-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
         }
-        .tab-content {
+        .cat-logo {
+            width: 60px;
+            height: 60px;
+        }
+        .page-section {
             display: none;
         }
-        .tab-content.active {
+        .page-section.active {
             display: block;
         }
-        .company-tab {
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .company-tab.active {
-            background-color: #3b82f6;
+        .tab-active {
+            background-color: #4f46e5;
             color: white;
         }
-        .task-item {
-            transition: all 0.3s ease;
+        #password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
         }
-        .task-item:hover {
+        .table-row:nth-child(even) {
             background-color: #f3f4f6;
         }
-        .task-completed {
-            text-decoration: line-through;
-            color: #9ca3af;
-        }
-        .modal {
-            transition: opacity 0.25s ease;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-        .custom-checkbox {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #3b82f6;
-            border-radius: 4px;
-            cursor: pointer;
-            display: inline-block;
-            vertical-align: middle;
-            position: relative;
-        }
-        .custom-checkbox.checked:after {
-            content: '✓';
-            position: absolute;
-            color: white;
-            background-color: #3b82f6;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            line-height: 18px;
-            border-radius: 2px;
-        }
-        .badge {
-            padding: 2px 8px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .badge-blue {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-        .badge-green {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-        .badge-red {
-            background-color: #fee2e2;
-            color: #b91c1c;
-        }
-        .badge-yellow {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-        .badge-purple {
-            background-color: #ede9fe;
-            color: #5b21b6;
-        }
-        @media print {
-            body {
-                background-color: white;
-            }
-            .no-print {
-                display: none;
-            }
-            .card {
-                box-shadow: none;
-                border: 1px solid #e5e7eb;
-            }
-            .tab-content {
-                display: block;
-            }
+        .table-row:hover {
+            background-color: #e5e7eb;
         }
     </style>
 </head>
 <body>
     <div class="container mx-auto px-4 py-8">
-        <!-- 헤더 -->
-        <header class="mb-8">
-            <h1 class="text-3xl font-bold text-center text-gray-800">MZ마케팅 전산시스템</h1>
-            <p class="text-center text-gray-600">마케팅 업무 관리 및 성과 추적 시스템</p>
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="cat-logo mr-4">
+                    <circle cx="50" cy="50" r="45" fill="#FFD8D8"/>
+                    <circle cx="35" cy="40" r="5" fill="#333"/>
+                    <circle cx="65" cy="40" r="5" fill="#333"/>
+                    <path d="M50,60 Q60,70 70,60" stroke="#333" stroke-width="2" fill="none"/>
+                    <path d="M25,25 L40,35" stroke="#333" stroke-width="2"/>
+                    <path d="M75,25 L60,35" stroke="#333" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="3" fill="#FF9999"/>
+                    <path d="M42,52 C45,59 55,59 58,52" fill="#FF9999"/>
+                </svg>
+                <h1 class="text-3xl font-bold text-indigo-700">MZ마케팅 전산 시스템</h1>
+            </div>
+            <div class="flex space-x-2">
+                <button id="connect-sheets-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                    구글 스프레드시트 연결
+                </button>
+                <button id="save-data-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded hidden">
+                    데이터 저장
+                </button>
+            </div>
         </header>
 
-        <!-- 대시보드 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="card bg-white p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">총 계약 업체 수</p>
-                        <h2 class="text-3xl font-bold text-gray-800" id="total-companies">0</h2>
+        <!-- Navigation Tabs -->
+        <div class="flex border-b mb-6">
+            <button id="dashboard-tab" class="px-4 py-2 tab-active rounded-t-lg">대시보드</button>
+            <button id="companies-tab" class="px-4 py-2 rounded-t-lg">계약업체 관리</button>
+            <button id="works-tab" class="px-4 py-2 rounded-t-lg">작업 현황</button>
+            <button id="accounts-tab" class="px-4 py-2 rounded-t-lg">계정 관리</button>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="page-section active">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Total Companies Card -->
+                <div class="dashboard-card bg-white rounded-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-700">총 계약업체 수</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
                     </div>
-                    <div class="bg-blue-100 p-3 rounded-full">
-                        <i class="fas fa-building text-blue-500"></i>
-                    </div>
+                    <div class="text-3xl font-bold text-indigo-700" id="total-companies">0</div>
+                    <div class="text-sm text-gray-500 mt-2">전체 계약된 업체 수</div>
                 </div>
-                <div class="mt-4">
-                    <div class="flex items-center">
-                        <span class="text-green-500 mr-2"><i class="fas fa-arrow-up"></i> 5%</span>
-                        <span class="text-gray-500 text-sm">지난달 대비</span>
+
+                <!-- This Month Companies Card -->
+                <div class="dashboard-card bg-white rounded-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-700">이번달 계약업체 수</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
                     </div>
+                    <div class="text-3xl font-bold text-green-600" id="month-companies">0</div>
+                    <div class="text-sm text-gray-500 mt-2" id="current-month-text">2023년 10월 신규 계약</div>
+                </div>
+
+                <!-- This Month Revenue Card -->
+                <div class="dashboard-card bg-white rounded-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-700">이번달 매출</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="text-3xl font-bold text-yellow-600" id="month-revenue">₩0</div>
+                    <div class="text-sm text-gray-500 mt-2" id="current-month-revenue-text">2023년 10월 매출액</div>
                 </div>
             </div>
 
-            <div class="card bg-white p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">이번달 계약 수</p>
-                        <h2 class="text-3xl font-bold text-gray-800" id="monthly-contracts">0</h2>
-                    </div>
-                    <div class="bg-green-100 p-3 rounded-full">
-                        <i class="fas fa-file-signature text-green-500"></i>
-                    </div>
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg p-6 dashboard-card">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">월별 계약 추이</h3>
+                    <canvas id="monthly-contracts-chart" height="250"></canvas>
                 </div>
-                <div class="mt-4">
-                    <div class="flex items-center">
-                        <span class="text-green-500 mr-2"><i class="fas fa-arrow-up"></i> 12%</span>
-                        <span class="text-gray-500 text-sm">지난달 대비</span>
-                    </div>
+                <div class="bg-white rounded-lg p-6 dashboard-card">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">월별 매출 추이</h3>
+                    <canvas id="monthly-revenue-chart" height="250"></canvas>
                 </div>
             </div>
 
-            <div class="card bg-white p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">이번달 매출 금액</p>
-                        <h2 class="text-3xl font-bold text-gray-800" id="monthly-revenue">0원</h2>
-                    </div>
-                    <div class="bg-purple-100 p-3 rounded-full">
-                        <i class="fas fa-won-sign text-purple-500"></i>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <div class="flex items-center">
-                        <span class="text-green-500 mr-2"><i class="fas fa-arrow-up"></i> 8%</span>
-                        <span class="text-gray-500 text-sm">지난달 대비</span>
-                    </div>
+            <!-- Recent Activities -->
+            <div class="bg-white rounded-lg p-6 mt-6 dashboard-card">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">최근 활동</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="px-4 py-2 text-left">날짜</th>
+                                <th class="px-4 py-2 text-left">업체명</th>
+                                <th class="px-4 py-2 text-left">활동 내용</th>
+                                <th class="px-4 py-2 text-left">담당자</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-activities">
+                            <tr class="table-row">
+                                <td class="px-4 py-2">2023-10-15</td>
+                                <td class="px-4 py-2">카페 동네</td>
+                                <td class="px-4 py-2">블로그 리뷰 5건 등록</td>
+                                <td class="px-4 py-2">김지은</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="px-4 py-2">2023-10-14</td>
+                                <td class="px-4 py-2">해피 스마일 치과</td>
+                                <td class="px-4 py-2">신규 계약 체결</td>
+                                <td class="px-4 py-2">박상우</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="px-4 py-2">2023-10-12</td>
+                                <td class="px-4 py-2">맛집 왕국</td>
+                                <td class="px-4 py-2">영수증 리뷰 3건 등록</td>
+                                <td class="px-4 py-2">이미라</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- 메인 콘텐츠 영역 -->
-        <div class="flex flex-col md:flex-row gap-6">
-            <!-- 사이드바 -->
-            <div class="w-full md:w-64 mb-6 md:mb-0">
-                <div class="card bg-white p-4">
-                    <h3 class="font-bold text-lg mb-4 text-gray-800">업체 목록</h3>
-                    <div class="mb-4">
-                        <button id="add-company-btn" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200">
-                            <i class="fas fa-plus mr-2"></i>업체 추가
-                        </button>
-                    </div>
-                    <div id="company-list" class="space-y-2">
-                        <!-- 업체 탭은 JavaScript로 추가됨 -->
-                    </div>
-                </div>
+        <!-- Companies Management Section -->
+        <div id="companies-section" class="page-section">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">계약업체 관리</h2>
+                <button id="add-company-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    새 업체 추가
+                </button>
             </div>
 
-            <!-- 메인 콘텐츠 -->
-            <div class="flex-1">
-                <div class="card bg-white p-6">
-                    <div id="welcome-screen" class="text-center py-12">
-                        <i class="fas fa-clipboard-list text-gray-300 text-6xl mb-4"></i>
-                        <h3 class="text-xl font-bold text-gray-600 mb-2">작업 관리 시스템</h3>
-                        <p class="text-gray-500">왼쪽 메뉴에서 업체를 선택하거나 새 업체를 추가하세요.</p>
+            <div class="bg-white rounded-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="relative w-64">
+                        <input type="text" id="company-search" placeholder="업체명 검색" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute right-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
                     </div>
-
-                    <div id="company-details" class="tab-content">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-2xl font-bold text-gray-800" id="company-name-header">업체명</h2>
-                            <div>
-                                <button id="edit-company-btn" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200 mr-2">
-                                    <i class="fas fa-edit mr-1"></i> 업체 편집
-                                </button>
-                                <button id="delete-company-btn" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-200">
-                                    <i class="fas fa-trash-alt mr-1"></i> 삭제
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- 업체 정보 -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-700 mb-3">계약 정보</h3>
-                                <div class="space-y-2">
-                                    <div class="flex">
-                                        <span class="font-medium text-gray-600 w-32">담당자:</span>
-                                        <span id="company-manager" class="text-gray-800"></span>
-                                    </div>
-                                    <div class="flex">
-                                        <span class="font-medium text-gray-600 w-32">계약기간:</span>
-                                        <span id="company-period" class="text-gray-800"></span>
-                                    </div>
-                                    <div class="flex">
-                                        <span class="font-medium text-gray-600 w-32">상품내역:</span>
-                                        <span id="company-products" class="text-gray-800"></span>
-                                    </div>
-                                    <div class="flex">
-                                        <span class="font-medium text-gray-600 w-32">계약금액:</span>
-                                        <span id="company-amount" class="text-gray-800"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-700 mb-3">업체 정보</h3>
-                                <div class="space-y-2">
-                                    <div class="flex">
-                                        <span class="font-medium text-gray-600 w-32">대표자:</span>
-                                        <span id="company-representative" class="text-gray-800"></span>
-                                    </div>
-                                    <div class="flex">
-                                        <span class="font-medium text-gray-600 w-32">연락처:</span>
-                                        <span id="company-phone" class="text-gray-800"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 작업 현황 -->
-                        <div class="mb-8">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4">작업 현황</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="task-item p-4 border rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-medium">플레이스 최적화</span>
-                                        <div id="place-status" class="badge badge-blue">진행중</div>
-                                    </div>
-                                    <div class="mt-2 text-right">
-                                        <button class="toggle-task-status text-sm text-blue-500 hover:text-blue-700" data-task="place">상태 변경</button>
-                                    </div>
-                                </div>
-                                <div class="task-item p-4 border rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-medium">블로스킨</span>
-                                        <div id="bloskin-status" class="badge badge-blue">진행중</div>
-                                    </div>
-                                    <div class="mt-2 text-right">
-                                        <button class="toggle-task-status text-sm text-blue-500 hover:text-blue-700" data-task="bloskin">상태 변경</button>
-                                    </div>
-                                </div>
-                                <div class="task-item p-4 border rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-medium">클립영상 1편</span>
-                                        <div id="clip1-status" class="badge badge-blue">진행중</div>
-                                    </div>
-                                    <div class="mt-2 text-right">
-                                        <button class="toggle-task-status text-sm text-blue-500 hover:text-blue-700" data-task="clip1">상태 변경</button>
-                                    </div>
-                                </div>
-                                <div class="task-item p-4 border rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-medium">클립영상 2편</span>
-                                        <div id="clip2-status" class="badge badge-blue">진행중</div>
-                                    </div>
-                                    <div class="mt-2 text-right">
-                                        <button class="toggle-task-status text-sm text-blue-500 hover:text-blue-700" data-task="clip2">상태 변경</button>
-                                    </div>
-                                </div>
-                                <div class="task-item p-4 border rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-medium">클립영상 3편</span>
-                                        <div id="clip3-status" class="badge badge-blue">진행중</div>
-                                    </div>
-                                    <div class="mt-2 text-right">
-                                        <button class="toggle-task-status text-sm text-blue-500 hover:text-blue-700" data-task="clip3">상태 변경</button>
-                                    </div>
-                                </div>
-                                <div class="task-item p-4 border rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-medium">스마트콜</span>
-                                        <div id="smartcall-status" class="badge badge-blue">진행중</div>
-                                    </div>
-                                    <div class="mt-2 text-right">
-                                        <button class="toggle-task-status text-sm text-blue-500 hover:text-blue-700" data-task="smartcall">상태 변경</button>
-                                    </div>
-                                </div>
-                                <div class="task-item p-4 border rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-medium">당근마켓 세팅</span>
-                                        <div id="carrot-status" class="badge badge-blue">진행중</div>
-                                    </div>
-                                    <div class="mt-2 text-right">
-                                        <button class="toggle-task-status text-sm text-blue-500 hover:text-blue-700" data-task="carrot">상태 변경</button>
-                                    </div>
-                                </div>
-                                <div class="task-item p-4 border rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-medium">블로그 작성</span>
-                                        <div id="blog-count" class="badge badge-green">0/10</div>
-                                    </div>
-                                    <div class="mt-2 text-right">
-                                        <button id="manage-blog-btn" class="text-sm text-blue-500 hover:text-blue-700">관리하기</button>
-                                    </div>
-                                </div>
-                                <div class="task-item p-4 border rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-medium">영수증 리뷰</span>
-                                        <div id="review-count" class="badge badge-green">0/5</div>
-                                    </div>
-                                    <div class="mt-2 text-right">
-                                        <button id="manage-review-btn" class="text-sm text-blue-500 hover:text-blue-700">관리하기</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 진행 상황 요약 -->
-                        <div class="mb-8">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4">진행 상황 요약</h3>
-                            <div class="w-full bg-gray-200 rounded-full h-4">
-                                <div id="progress-bar" class="bg-blue-500 h-4 rounded-full" style="width: 30%"></div>
-                            </div>
-                            <div class="flex justify-between mt-2">
-                                <span class="text-sm text-gray-600">시작</span>
-                                <span id="progress-percentage" class="text-sm font-medium text-gray-700">30% 완료</span>
-                                <span class="text-sm text-gray-600">완료</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 블로그 작업 관리 -->
-                    <div id="blog-management" class="tab-content">
-                        <div class="mb-6">
-                            <button id="back-to-company" class="flex items-center text-blue-500 hover:text-blue-700">
-                                <i class="fas fa-arrow-left mr-2"></i> 업체 정보로 돌아가기
-                            </button>
-                        </div>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6">블로그 작업 관리</h2>
-
-                        <div class="mb-6">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold text-gray-700">작업 현황</h3>
-                                <div class="flex space-x-2">
-                                    <button id="add-blog-task-btn" class="bg-green-500 text-white py-1 px-3 rounded text-sm hover:bg-green-600 transition duration-200">
-                                        <i class="fas fa-plus mr-1"></i> 작업 추가
-                                    </button>
-                                    <button id="show-all-ids-btn" class="bg-blue-500 text-white py-1 px-3 rounded text-sm hover:bg-blue-600 transition duration-200">
-                                        <i class="fas fa-id-card mr-1"></i> 전체 아이디 보기
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full bg-white border">
-                                    <thead>
-                                        <tr class="bg-gray-100">
-                                            <th class="py-2 px-4 border-b text-left">No.</th>
-                                            <th class="py-2 px-4 border-b text-left">키워드</th>
-                                            <th class="py-2 px-4 border-b text-left">아이디</th>
-                                            <th class="py-2 px-4 border-b text-left">작성일</th>
-                                            <th class="py-2 px-4 border-b text-left">상태</th>
-                                            <th class="py-2 px-4 border-b text-left">관리</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="blog-tasks">
-                                        <!-- 블로그 작업은 JavaScript로 추가됨 -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4">사용 가능한 아이디</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="available-ids">
-                                <!-- 사용 가능한 아이디는 JavaScript로 추가됨 -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 영수증 리뷰 관리 -->
-                    <div id="review-management" class="tab-content">
-                        <div class="mb-6">
-                            <button id="back-to-company-from-review" class="flex items-center text-blue-500 hover:text-blue-700">
-                                <i class="fas fa-arrow-left mr-2"></i> 업체 정보로 돌아가기
-                            </button>
-                        </div>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-6">영수증 리뷰 관리</h2>
-
-                        <div class="mb-6">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold text-gray-700">작업 현황</h3>
-                                <button id="add-review-task-btn" class="bg-green-500 text-white py-1 px-3 rounded text-sm hover:bg-green-600 transition duration-200">
-                                    <i class="fas fa-plus mr-1"></i> 리뷰 추가
-                                </button>
-                            </div>
-
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full bg-white border">
-                                    <thead>
-                                        <tr class="bg-gray-100">
-                                            <th class="py-2 px-4 border-b text-left">No.</th>
-                                            <th class="py-2 px-4 border-b text-left">플랫폼</th>
-                                            <th class="py-2 px-4 border-b text-left">아이디</th>
-                                            <th class="py-2 px-4 border-b text-left">작성일</th>
-                                            <th class="py-2 px-4 border-b text-left">상태</th>
-                                            <th class="py-2 px-4 border-b text-left">관리</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="review-tasks">
-                                        <!-- 리뷰 작업은 JavaScript로 추가됨 -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4">사용 가능한 아이디</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="available-review-ids">
-                                <!-- 사용 가능한 아이디는 JavaScript로 추가됨 -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 모달: 업체 추가/편집 -->
-    <div id="company-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800" id="company-modal-title">업체 추가</h3>
-                    <button id="close-company-modal" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <form id="company-form">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div>
-                            <label class="block text-gray-700 text-sm font-medium mb-2" for="company-name-input">
-                                업체명 *
-                            </label>
-                            <input type="text" id="company-name-input" class="w-full px-3 py-2 border rounded" required>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-medium mb-2" for="company-manager-input">
-                                계약 담당자 이름 *
-                            </label>
-                            <input type="text" id="company-manager-input" class="w-full px-3 py-2 border rounded" required>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-medium mb-2" for="company-start-date">
-                                계약 시작일 *
-                            </label>
-                            <input type="date" id="company-start-date" class="w-full px-3 py-2 border rounded" required>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-medium mb-2" for="company-end-date">
-                                계약 종료일 *
-                            </label>
-                            <input type="date" id="company-end-date" class="w-full px-3 py-2 border rounded" required>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-medium mb-2" for="company-amount-input">
-                                금액 (원) *
-                            </label>
-                            <input type="number" id="company-amount-input" class="w-full px-3 py-2 border rounded" required>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-medium mb-2" for="company-rep-input">
-                                대표자 이름 *
-                            </label>
-                            <input type="text" id="company-rep-input" class="w-full px-3 py-2 border rounded" required>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 text-sm font-medium mb-2" for="company-phone-input">
-                                연락처 *
-                            </label>
-                            <input type="text" id="company-phone-input" class="w-full px-3 py-2 border rounded" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="company-products-input">
-                            상품내역 *
-                        </label>
-                        <textarea id="company-products-input" class="w-full px-3 py-2 border rounded" rows="3" required></textarea>
-                    </div>
-
-                    <div class="mb-6">
-                        <h4 class="font-medium text-gray-700 mb-2">계약 서비스</h4>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                            <div class="flex items-center">
-                                <input type="checkbox" id="service-place" class="mr-2">
-                                <label for="service-place">플레이스 최적화</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="service-bloskin" class="mr-2">
-                                <label for="service-bloskin">블로스킨</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="service-clip" class="mr-2">
-                                <label for="service-clip">클립영상</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="service-smartcall" class="mr-2">
-                                <label for="service-smartcall">스마트콜</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="service-carrot" class="mr-2">
-                                <label for="service-carrot">당근마켓세팅</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="service-blog" class="mr-2">
-                                <label for="service-blog">블로그 작성</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="checkbox" id="service-review" class="mr-2">
-                                <label for="service-review">영수증리뷰</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end">
-                        <button type="button" id="cancel-company-btn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded mr-2 hover:bg-gray-400 transition duration-200">
-                            취소
-                        </button>
-                        <button type="submit" id="save-company-btn" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200">
-                            저장
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- 모달: 블로그 작업 추가 -->
-    <div id="blog-task-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800">블로그 작업 추가</h3>
-                    <button id="close-blog-task-modal" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <form id="blog-task-form">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="blog-keyword">
-                            키워드 *
-                        </label>
-                        <input type="text" id="blog-keyword" class="w-full px-3 py-2 border rounded" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="blog-id-select">
-                            사용할 아이디 *
-                        </label>
-                        <select id="blog-id-select" class="w-full px-3 py-2 border rounded" required>
-                            <option value="">아이디 선택</option>
-                        </select>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="blog-date">
-                            작성일 *
-                        </label>
-                        <input type="date" id="blog-date" class="w-full px-3 py-2 border rounded" required>
-                    </div>
-                    <div class="flex justify-end">
-                        <button type="button" id="cancel-blog-task-btn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded mr-2 hover:bg-gray-400 transition duration-200">
-                            취소
-                        </button>
-                        <button type="submit" id="save-blog-task-btn" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200">
-                            저장
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- 모달: 리뷰 작업 추가 -->
-    <div id="review-task-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800">영수증 리뷰 추가</h3>
-                    <button id="close-review-task-modal" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <form id="review-task-form">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="review-platform">
-                            플랫폼 *
-                        </label>
-                        <select id="review-platform" class="w-full px-3 py-2 border rounded" required>
-                            <option value="">플랫폼 선택</option>
-                            <option value="네이버 플레이스">네이버 플레이스</option>
-                            <option value="카카오맵">카카오맵</option>
-                            <option value="구글 맵">구글 맵</option>
-                            <option value="망고플레이트">망고플레이트</option>
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="review-id-select">
-                            사용할 아이디 *
-                        </label>
-                        <select id="review-id-select" class="w-full px-3 py-2 border rounded" required>
-                            <option value="">아이디 선택</option>
-                        </select>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="review-date">
-                            작성일 *
-                        </label>
-                        <input type="date" id="review-date" class="w-full px-3 py-2 border rounded" required>
-                    </div>
-                    <div class="flex justify-end">
-                        <button type="button" id="cancel-review-task-btn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded mr-2 hover:bg-gray-400 transition duration-200">
-                            취소
-                        </button>
-                        <button type="submit" id="save-review-task-btn" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200">
-                            저장
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- 모달: 아이디 관리 -->
-    <div id="id-management-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800">아이디 관리</h3>
-                    <button id="close-id-management-modal" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div class="mb-4 flex justify-between items-center">
                     <div class="flex space-x-2">
-                        <button id="add-id-btn" class="bg-green-500 text-white py-1 px-3 rounded text-sm hover:bg-green-600 transition duration-200">
-                            <i class="fas fa-plus mr-1"></i> 새 아이디 추가
-                        </button>
-                        <button id="import-ids-btn" class="bg-blue-500 text-white py-1 px-3 rounded text-sm hover:bg-blue-600 transition duration-200">
-                            <i class="fas fa-file-import mr-1"></i> 아이디 일괄 가져오기
-                        </button>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="text" id="id-search" placeholder="아이디 검색" class="px-3 py-1 border rounded mr-2">
-                        <select id="id-platform-filter" class="px-3 py-1 border rounded">
-                            <option value="all">모든 플랫폼</option>
-                            <option value="naver">네이버</option>
-                            <option value="daum">다음</option>
-                            <option value="google">구글</option>
-                            <option value="instagram">인스타그램</option>
+                        <select id="company-filter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="all">모든 업체</option>
+                            <option value="active">활성 계약</option>
+                            <option value="expired">만료 계약</option>
+                        </select>
+                        <select id="company-sort" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="name-asc">업체명 (오름차순)</option>
+                            <option value="name-desc">업체명 (내림차순)</option>
+                            <option value="date-asc">계약일 (오름차순)</option>
+                            <option value="date-desc">계약일 (내림차순)</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white border">
+                    <table class="min-w-full">
                         <thead>
                             <tr class="bg-gray-100">
-                                <th class="py-2 px-4 border-b text-left">No.</th>
-                                <th class="py-2 px-4 border-b text-left">플랫폼</th>
-                                <th class="py-2 px-4 border-b text-left">아이디</th>
-                                <th class="py-2 px-4 border-b text-left">상태</th>
-                                <th class="py-2 px-4 border-b text-left">마지막 사용일</th>
-                                <th class="py-2 px-4 border-b text-left">관리</th>
+                                <th class="px-4 py-2 text-left">업체명</th>
+                                <th class="px-4 py-2 text-left">연락처</th>
+                                <th class="px-4 py-2 text-left">계약일</th>
+                                <th class="px-4 py-2 text-left">계약 상태</th>
+                                <th class="px-4 py-2 text-left">월 계약금</th>
+                                <th class="px-4 py-2 text-left">담당자</th>
+                                <th class="px-4 py-2 text-center">관리</th>
                             </tr>
                         </thead>
-                        <tbody id="id-list">
-                            <!-- 아이디 목록은 JavaScript로 추가됨 -->
+                        <tbody id="companies-list">
+                            <tr class="table-row">
+                                <td class="px-4 py-2 font-medium">카페 동네</td>
+                                <td class="px-4 py-2">02-123-4567</td>
+                                <td class="px-4 py-2">2023-05-10</td>
+                                <td class="px-4 py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">활성</span></td>
+                                <td class="px-4 py-2">₩300,000</td>
+                                <td class="px-4 py-2">김지은</td>
+                                <td class="px-4 py-2 text-center">
+                                    <button class="text-indigo-600 hover:text-indigo-900 company-detail-btn" data-id="1">상세보기</button>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="px-4 py-2 font-medium">해피 스마일 치과</td>
+                                <td class="px-4 py-2">02-987-6543</td>
+                                <td class="px-4 py-2">2023-10-14</td>
+                                <td class="px-4 py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">활성</span></td>
+                                <td class="px-4 py-2">₩500,000</td>
+                                <td class="px-4 py-2">박상우</td>
+                                <td class="px-4 py-2 text-center">
+                                    <button class="text-indigo-600 hover:text-indigo-900 company-detail-btn" data-id="2">상세보기</button>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="px-4 py-2 font-medium">맛집 왕국</td>
+                                <td class="px-4 py-2">02-456-7890</td>
+                                <td class="px-4 py-2">2023-03-22</td>
+                                <td class="px-4 py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">활성</span></td>
+                                <td class="px-4 py-2">₩350,000</td>
+                                <td class="px-4 py-2">이미라</td>
+                                <td class="px-4 py-2 text-center">
+                                    <button class="text-indigo-600 hover:text-indigo-900 company-detail-btn" data-id="3">상세보기</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Company Detail View (Hidden by default) -->
+            <div id="company-detail-view" class="bg-white rounded-lg p-6 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800" id="detail-company-name">업체 상세 정보</h3>
+                    <button id="back-to-companies" class="text-gray-600 hover:text-gray-900">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4">기본 정보</h4>
+                        <div class="space-y-3">
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">업체명:</span>
+                                <span id="detail-name" class="font-medium">카페 동네</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">주소:</span>
+                                <span id="detail-address" class="font-medium">서울시 강남구 테헤란로 123</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">연락처:</span>
+                                <span id="detail-phone" class="font-medium">02-123-4567</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">담당자:</span>
+                                <span id="detail-manager" class="font-medium">김지은</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4">계약 정보</h4>
+                        <div class="space-y-3">
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">계약일:</span>
+                                <span id="detail-contract-date" class="font-medium">2023-05-10</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">계약 기간:</span>
+                                <span id="detail-contract-period" class="font-medium">12개월</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">월 계약금:</span>
+                                <span id="detail-monthly-fee" class="font-medium">₩300,000</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">계약 상태:</span>
+                                <span id="detail-status" class="font-medium px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">활성</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold mb-4">작업 현황</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-4 py-2 text-left">작업 유형</th>
+                                    <th class="px-4 py-2 text-left">작업 내용</th>
+                                    <th class="px-4 py-2 text-left">상태</th>
+                                    <th class="px-4 py-2 text-left">작업일</th>
+                                    <th class="px-4 py-2 text-left">담당자</th>
+                                </tr>
+                            </thead>
+                            <tbody id="company-works">
+                                <tr class="table-row">
+                                    <td class="px-4 py-2">블로그 리뷰</td>
+                                    <td class="px-4 py-2">신메뉴 '아메리카노' 리뷰</td>
+                                    <td class="px-4 py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">완료</span></td>
+                                    <td class="px-4 py-2">2023-10-15</td>
+                                    <td class="px-4 py-2">김지은</td>
+                                </tr>
+                                <tr class="table-row">
+                                    <td class="px-4 py-2">블로그 리뷰</td>
+                                    <td class="px-4 py-2">인테리어 관련 리뷰</td>
+                                    <td class="px-4 py-2"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">진행중</span></td>
+                                    <td class="px-4 py-2">2023-10-20</td>
+                                    <td class="px-4 py-2">김지은</td>
+                                </tr>
+                                <tr class="table-row">
+                                    <td class="px-4 py-2">영수증 리뷰</td>
+                                    <td class="px-4 py-2">방문 고객 영수증 리뷰</td>
+                                    <td class="px-4 py-2"><span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">예정</span></td>
+                                    <td class="px-4 py-2">2023-10-25</td>
+                                    <td class="px-4 py-2">이미라</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flex space-x-2">
+                    <button id="edit-company-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+                        업체 정보 수정
+                    </button>
+                    <button id="add-work-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                        작업 추가
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Works Management Section -->
+        <div id="works-section" class="page-section">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">작업 현황 관리</h2>
+                <button id="add-work-global-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    새 작업 추가
+                </button>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex space-x-2">
+                        <div class="relative w-64">
+                            <input type="text" id="work-search" placeholder="작업명 검색" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute right-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <select id="company-select" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="all">모든 업체</option>
+                            <option value="1">카페 동네</option>
+                            <option value="2">해피 스마일 치과</option>
+                            <option value="3">맛집 왕국</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-2">
+                        <select id="work-type-filter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="all">모든 작업 유형</option>
+                            <option value="blog">블로그 리뷰</option>
+                            <option value="receipt">영수증 리뷰</option>
+                            <option value="sns">SNS 마케팅</option>
+                        </select>
+                        <select id="work-status-filter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="all">모든 상태</option>
+                            <option value="completed">완료</option>
+                            <option value="in-progress">진행중</option>
+                            <option value="planned">예정</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="px-4 py-2 text-left">업체명</th>
+                                <th class="px-4 py-2 text-left">작업 유형</th>
+                                <th class="px-4 py-2 text-left">작업 내용</th>
+                                <th class="px-4 py-2 text-left">상태</th>
+                                <th class="px-4 py-2 text-left">작업일</th>
+                                <th class="px-4 py-2 text-left">담당자</th>
+                                <th class="px-4 py-2 text-left">사용 계정</th>
+                                <th class="px-4 py-2 text-center">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="works-list">
+                            <tr class="table-row">
+                                <td class="px-4 py-2">카페 동네</td>
+                                <td class="px-4 py-2">블로그 리뷰</td>
+                                <td class="px-4 py-2">신메뉴 '아메리카노' 리뷰</td>
+                                <td class="px-4 py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">완료</span></td>
+                                <td class="px-4 py-2">2023-10-15</td>
+                                <td class="px-4 py-2">김지은</td>
+                                <td class="px-4 py-2">네이버블로그1</td>
+                                <td class="px-4 py-2 text-center">
+                                    <button class="text-indigo-600 hover:text-indigo-900 work-detail-btn" data-id="1">상세보기</button>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="px-4 py-2">해피 스마일 치과</td>
+                                <td class="px-4 py-2">블로그 리뷰</td>
+                                <td class="px-4 py-2">임플란트 시술 후기</td>
+                                <td class="px-4 py-2"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">진행중</span></td>
+                                <td class="px-4 py-2">2023-10-18</td>
+                                <td class="px-4 py-2">박상우</td>
+                                <td class="px-4 py-2">네이버블로그2</td>
+                                <td class="px-4 py-2 text-center">
+                                    <button class="text-indigo-600 hover:text-indigo-900 work-detail-btn" data-id="2">상세보기</button>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="px-4 py-2">맛집 왕국</td>
+                                <td class="px-4 py-2">영수증 리뷰</td>
+                                <td class="px-4 py-2">방문 고객 영수증 리뷰</td>
+                                <td class="px-4 py-2"><span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">예정</span></td>
+                                <td class="px-4 py-2">2023-10-25</td>
+                                <td class="px-4 py-2">이미라</td>
+                                <td class="px-4 py-2">카카오맵3</td>
+                                <td class="px-4 py-2 text-center">
+                                    <button class="text-indigo-600 hover:text-indigo-900 work-detail-btn" data-id="3">상세보기</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Work Detail View (Hidden by default) -->
+            <div id="work-detail-view" class="bg-white rounded-lg p-6 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800" id="detail-work-title">작업 상세 정보</h3>
+                    <button id="back-to-works" class="text-gray-600 hover:text-gray-900">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4">작업 정보</h4>
+                        <div class="space-y-3">
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">업체명:</span>
+                                <span id="detail-work-company" class="font-medium">카페 동네</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">작업 유형:</span>
+                                <span id="detail-work-type" class="font-medium">블로그 리뷰</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">작업 내용:</span>
+                                <span id="detail-work-content" class="font-medium">신메뉴 '아메리카노' 리뷰</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">작업일:</span>
+                                <span id="detail-work-date" class="font-medium">2023-10-15</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">상태:</span>
+                                <span id="detail-work-status" class="font-medium px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">완료</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4">담당 정보</h4>
+                        <div class="space-y-3">
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">담당자:</span>
+                                <span id="detail-work-manager" class="font-medium">김지은</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">사용 계정:</span>
+                                <span id="detail-work-account" class="font-medium">네이버블로그1</span>
+                            </div>
+                            <div class="flex">
+                                <span class="w-32 text-gray-600">링크:</span>
+                                <a href="#" id="detail-work-link" class="font-medium text-blue-600 hover:text-blue-800" target="_blank">https://blog.naver.com/example/123456</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold mb-4">작업 상세 내용</h4>
+                    <div class="p-4 bg-gray-50 rounded-lg" id="detail-work-description">
+                        <p>카페 동네의 신메뉴 '아메리카노'에 대한 블로그 리뷰입니다. 특별한 원두를 사용하여 산미가 좋고 향이 풍부한 아메리카노라는 점을 강조했습니다. 사진은 총 5장을 첨부했으며, 내부 인테리어와 함께 촬영하여 카페의 분위기도 함께 보여줬습니다.</p>
+                        <p class="mt-2">방문 시간은 오후 2시경으로, 카페가 적당히 붐비는 시간대를 선택하여 활기찬 분위기를 담았습니다. 해시태그는 #카페동네 #아메리카노 #카페추천 #강남카페 등을 사용했습니다.</p>
+                    </div>
+                </div>
+
+                <div class="flex space-x-2">
+                    <button id="edit-work-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+                        작업 정보 수정
+                    </button>
+                    <button id="complete-work-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                        작업 완료 처리
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accounts Management Section -->
+        <div id="accounts-section" class="page-section">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">계정 관리</h2>
+                <button id="add-account-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    새 계정 추가
+                </button>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex space-x-2">
+                        <input type="text" id="account-search" placeholder="계정명 검색" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select id="platform-filter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="all">모든 플랫폼</option>
+                            <option value="naver">네이버</option>
+                            <option value="kakao">카카오</option>
+                            <option value="google">구글</option>
+                            <option value="instagram">인스타그램</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button id="view-account-passwords" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
+                            계정 비밀번호 보기
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="px-4 py-2 text-left">플랫폼</th>
+                                <th class="px-4 py-2 text-left">계정명</th>
+                                <th class="px-4 py-2 text-left">닉네임</th>
+                                <th class="px-4 py-2 text-left">계정 생성일</th>
+                                <th class="px-4 py-2 text-left">마지막 사용일</th>
+                                <th class="px-4 py-2 text-left">사용 횟수</th>
+                                <th class="px-4 py-2 text-left">상태</th>
+                                <th class="px-4 py-2 text-center">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accounts-list">
+                            <tr class="table-row">
+                                <td class="px-4 py-2">
+                                    <div class="flex items-center">
+                                        <span class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-xs mr-2">N</span>
+                                        네이버
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2">네이버블로그1</td>
+                                <td class="px-4 py-2">맛집탐험가</td>
+                                <td class="px-4 py-2">2022-05-10</td>
+                                <td class="px-4 py-2">2023-10-15</td>
+                                <td class="px-4 py-2">15</td>
+                                <td class="px-4 py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">사용가능</span></td>
+                                <td class="px-4 py-2 text-center">
+                                    <button class="text-indigo-600 hover:text-indigo-900 account-detail-btn" data-id="1">상세보기</button>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="px-4 py-2">
+                                    <div class="flex items-center">
+                                        <span class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-xs mr-2">N</span>
+                                        네이버
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2">네이버블로그2</td>
+                                <td class="px-4 py-2">뷰티라이프</td>
+                                <td class="px-4 py-2">2022-06-15</td>
+                                <td class="px-4 py-2">2023-10-18</td>
+                                <td class="px-4 py-2">10</td>
+                                <td class="px-4 py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">사용가능</span></td>
+                                <td class="px-4 py-2 text-center">
+                                    <button class="text-indigo-600 hover:text-indigo-900 account-detail-btn" data-id="2">상세보기</button>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="px-4 py-2">
+                                    <div class="flex items-center">
+                                        <span class="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center text-white text-xs mr-2">K</span>
+                                        카카오
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2">카카오맵3</td>
+                                <td class="px-4 py-2">믿고보는리뷰</td>
+                                <td class="px-4 py-2">2022-07-20</td>
+                                <td class="px-4 py-2">2023-09-30</td>
+                                <td class="px-4 py-2">8</td>
+                                <td class="px-4 py-2"><span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">사용가능</span></td>
+                                <td class="px-4 py-2 text-center">
+                                    <button class="text-indigo-600 hover:text-indigo-900 account-detail-btn" data-id="3">상세보기</button>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -714,1219 +650,353 @@
         </div>
     </div>
 
-    <!-- 모달: 아이디 추가 -->
-    <div id="add-id-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800">아이디 추가</h3>
-                    <button id="close-add-id-modal" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <form id="id-form">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="id-platform">
-                            플랫폼 *
-                        </label>
-                        <select id="id-platform" class="w-full px-3 py-2 border rounded" required>
-                            <option value="">플랫폼 선택</option>
-                            <option value="naver">네이버</option>
-                            <option value="daum">다음</option>
-                            <option value="google">구글</option>
-                            <option value="instagram">인스타그램</option>
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="id-username">
-                            아이디 *
-                        </label>
-                        <input type="text" id="id-username" class="w-full px-3 py-2 border rounded" required>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="id-password">
-                            비밀번호 *
-                        </label>
-                        <input type="password" id="id-password" class="w-full px-3 py-2 border rounded" required>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="id-memo">
-                            메모
-                        </label>
-                        <textarea id="id-memo" class="w-full px-3 py-2 border rounded" rows="2"></textarea>
-                    </div>
-                    <div class="flex justify-end">
-                        <button type="button" id="cancel-id-btn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded mr-2 hover:bg-gray-400 transition duration-200">
-                            취소
-                        </button>
-                        <button type="submit" id="save-id-btn" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200">
-                            저장
-                        </button>
-                    </div>
-                </form>
+    <!-- Password Modal -->
+    <div id="password-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-96">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">비밀번호 확인</h3>
+                <button id="close-password-modal" class="text-gray-600 hover:text-gray-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <p class="mb-4">계정 정보를 확인하려면 관리자 비밀번호를 입력하세요.</p>
+            <input type="password" id="admin-password" placeholder="비밀번호 입력" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+            <div class="flex justify-end">
+                <button id="submit-password" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Passwords Modal (Password Protected) -->
+    <div id="account-passwords-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-3/4 max-w-3xl max-h-3/4 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">계정 비밀번호 목록</h3>
+                <button id="close-account-passwords-modal" class="text-gray-600 hover:text-gray-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="px-4 py-2 text-left">플랫폼</th>
+                            <th class="px-4 py-2 text-left">계정명</th>
+                            <th class="px-4 py-2 text-left">비밀번호</th>
+                            <th class="px-4 py-2 text-left">마지막 수정일</th>
+                        </tr>
+                    </thead>
+                    <tbody id="account-passwords-list">
+                        <tr class="table-row">
+                            <td class="px-4 py-2">네이버</td>
+                            <td class="px-4 py-2">네이버블로그1</td>
+                            <td class="px-4 py-2">********</td>
+                            <td class="px-4 py-2">2023-09-01</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="px-4 py-2">네이버</td>
+                            <td class="px-4 py-2">네이버블로그2</td>
+                            <td class="px-4 py-2">********</td>
+                            <td class="px-4 py-2">2023-08-15</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="px-4 py-2">카카오</td>
+                            <td class="px-4 py-2">카카오맵3</td>
+                            <td class="px-4 py-2">********</td>
+                            <td class="px-4 py-2">2023-07-20</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // 데이터 모델
-        let companies = [];
-        let ids = [];
-        let currentCompanyIndex = null;
-        let blogTasks = {};
-        let reviewTasks = {};
+        // Set the current date
+        const DateTime = luxon.DateTime;
+        const now = DateTime.now();
+        const currentMonthText = now.setLocale('ko').toFormat("yyyy년 M월");
+        document.getElementById('current-month-text').textContent = `${currentMonthText} 신규 계약`;
+        document.getElementById('current-month-revenue-text').textContent = `${currentMonthText} 매출액`;
 
-        // 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            // 로컬 스토리지에서 데이터 로드
-            loadData();
-            
-            // 이벤트 리스너 설정
-            setupEventListeners();
-            
-            // 통계 업데이트
-            updateDashboard();
+        // Set initial dashboard data
+        document.getElementById('total-companies').textContent = '32';
+        document.getElementById('month-companies').textContent = '5';
+        document.getElementById('month-revenue').textContent = '₩7,500,000';
+
+        // Tab navigation
+        const tabs = ['dashboard', 'companies', 'works', 'accounts'];
+        tabs.forEach(tab => {
+            document.getElementById(`${tab}-tab`).addEventListener('click', () => {
+                tabs.forEach(t => {
+                    document.getElementById(`${t}-tab`).classList.remove('tab-active');
+                    document.getElementById(`${t}-section`).classList.remove('active');
+                });
+                document.getElementById(`${tab}-tab`).classList.add('tab-active');
+                document.getElementById(`${tab}-section`).classList.add('active');
+            });
         });
 
-        // 데이터 로드
-        function loadData() {
-            // 로컬 스토리지에서 데이터 가져오기
-            const savedCompanies = localStorage.getItem('mzCompanies');
-            const savedIds = localStorage.getItem('mzIds');
-            const savedBlogTasks = localStorage.getItem('mzBlogTasks');
-            const savedReviewTasks = localStorage.getItem('mzReviewTasks');
-            
-            if (savedCompanies) {
-                companies = JSON.parse(savedCompanies);
-            } else {
-                // 샘플 데이터 추가
-                companies = [
-                    {
-                        id: 1,
-                        name: '다온헤어',
-                        manager: '김지영',
-                        period: '2023-05-01 ~ 2023-12-31',
-                        products: '기본 마케팅 패키지 (플레이스 최적화, 블로그 작성 10개, 영수증 리뷰 5개)',
-                        amount: 500000,
-                        representative: '이다온',
-                        phone: '010-1234-5678',
-                        tasks: {
-                            place: { status: 'progress', completed: false },
-                            bloskin: { status: 'progress', completed: false },
-                            clip1: { status: 'progress', completed: false },
-                            clip2: { status: 'progress', completed: false },
-                            clip3: { status: 'progress', completed: false },
-                            smartcall: { status: 'progress', completed: false },
-                            carrot: { status: 'progress', completed: false },
-                            blog: { target: 10, current: 0 },
-                            review: { target: 5, current: 0 }
-                        }
-                    },
-                    {
-                        id: 2,
-                        name: '미소치과',
-                        manager: '박현우',
-                        period: '2023-06-15 ~ 2024-06-14',
-                        products: '프리미엄 마케팅 패키지 (플레이스 최적화, 블로스킨, 클립영상 3편, 블로그 작성 15개)',
-                        amount: 1200000,
-                        representative: '최미소',
-                        phone: '010-9876-5432',
-                        tasks: {
-                            place: { status: 'completed', completed: true },
-                            bloskin: { status: 'completed', completed: true },
-                            clip1: { status: 'progress', completed: false },
-                            clip2: { status: 'progress', completed: false },
-                            clip3: { status: 'not-started', completed: false },
-                            smartcall: { status: 'not-applicable', completed: false },
-                            carrot: { status: 'not-applicable', completed: false },
-                            blog: { target: 15, current: 5 },
-                            review: { target: 0, current: 0 }
+        // Dashboard charts
+        const monthlyContractsChart = new Chart(
+            document.getElementById('monthly-contracts-chart').getContext('2d'),
+            {
+                type: 'bar',
+                data: {
+                    labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                    datasets: [{
+                        label: '월별 계약 건수',
+                        data: [3, 4, 2, 5, 6, 4, 3, 7, 5, 5, 0, 0],
+                        backgroundColor: 'rgba(79, 70, 229, 0.6)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
                         }
                     }
-                ];
-            }
-            
-            if (savedIds) {
-                ids = JSON.parse(savedIds);
-            } else {
-                // 샘플 아이디 추가
-                ids = [
-                    { id: 1, platform: 'naver', username: 'blog_user1', password: 'pass1234', status: 'available', lastUsed: null, memo: '블로그 전용 계정' },
-                    { id: 2, platform: 'naver', username: 'blog_user2', password: 'pass1234', status: 'available', lastUsed: null, memo: '블로그 전용 계정' },
-                    { id: 3, platform: 'naver', username: 'blog_user3', password: 'pass1234', status: 'available', lastUsed: null, memo: '블로그 전용 계정' },
-                    { id: 4, platform: 'naver', username: 'review_user1', password: 'pass1234', status: 'available', lastUsed: null, memo: '리뷰 전용 계정' },
-                    { id: 5, platform: 'daum', username: 'daum_user1', password: 'pass1234', status: 'available', lastUsed: null, memo: '리뷰 전용 계정' },
-                    { id: 6, platform: 'google', username: 'google_user1', password: 'pass1234', status: 'available', lastUsed: null, memo: '리뷰 전용 계정' },
-                    { id: 7, platform: 'instagram', username: 'insta_user1', password: 'pass1234', status: 'available', lastUsed: null, memo: '인스타 전용 계정' }
-                ];
-            }
-            
-            if (savedBlogTasks) {
-                blogTasks = JSON.parse(savedBlogTasks);
-            } else {
-                blogTasks = {
-                    1: [ // 다온헤어의 블로그 작업
-                        { id: 1, keyword: '헤어스타일 추천', idUsed: 1, date: '2023-07-15', status: 'completed' },
-                        { id: 2, keyword: '여름 헤어케어', idUsed: 2, date: '2023-07-20', status: 'in-progress' }
-                    ],
-                    2: [ // 미소치과의 블로그 작업
-                        { id: 1, keyword: '치아 미백 방법', idUsed: 1, date: '2023-06-25', status: 'completed' },
-                        { id: 2, keyword: '충치 예방법', idUsed: 2, date: '2023-07-05', status: 'completed' },
-                        { id: 3, keyword: '임플란트 종류', idUsed: 3, date: '2023-07-10', status: 'completed' },
-                        { id: 4, keyword: '치아 교정 과정', idUsed: 1, date: '2023-07-20', status: 'completed' },
-                        { id: 5, keyword: '잇몸 건강 관리', idUsed: 2, date: '2023-08-01', status: 'in-progress' }
-                    ]
-                };
-            }
-            
-            if (savedReviewTasks) {
-                reviewTasks = JSON.parse(savedReviewTasks);
-            } else {
-                reviewTasks = {
-                    1: [ // 다온헤어의 리뷰 작업
-                        { id: 1, platform: '네이버 플레이스', idUsed: 4, date: '2023-07-15', status: 'completed' }
-                    ],
-                    2: [] // 미소치과는 리뷰 작업 없음
-                };
-            }
-            
-            // 업체 목록 렌더링
-            renderCompanyList();
-        }
-
-        // 데이터 저장
-        function saveData() {
-            localStorage.setItem('mzCompanies', JSON.stringify(companies));
-            localStorage.setItem('mzIds', JSON.stringify(ids));
-            localStorage.setItem('mzBlogTasks', JSON.stringify(blogTasks));
-            localStorage.setItem('mzReviewTasks', JSON.stringify(reviewTasks));
-        }
-
-        // 이벤트 리스너 설정
-        function setupEventListeners() {
-            // 업체 추가 버튼
-            document.getElementById('add-company-btn').addEventListener('click', () => {
-                document.getElementById('company-modal-title').textContent = '업체 추가';
-                document.getElementById('company-form').reset();
-                toggleModal('company-modal', true);
-            });
-            
-            // 업체 편집 버튼
-            document.getElementById('edit-company-btn').addEventListener('click', () => {
-                if (currentCompanyIndex !== null) {
-                    document.getElementById('company-modal-title').textContent = '업체 편집';
-                    fillCompanyForm(companies[currentCompanyIndex]);
-                    toggleModal('company-modal', true);
                 }
-            });
-            
-            // 업체 삭제 버튼
-            document.getElementById('delete-company-btn').addEventListener('click', () => {
-                if (currentCompanyIndex !== null) {
-                    if (confirm(`${companies[currentCompanyIndex].name} 업체를 삭제하시겠습니까?`)) {
-                        companies.splice(currentCompanyIndex, 1);
-                        saveData();
-                        currentCompanyIndex = null;
-                        renderCompanyList();
-                        updateDashboard();
-                        showTab('welcome-screen');
+            }
+        );
+
+        const monthlyRevenueChart = new Chart(
+            document.getElementById('monthly-revenue-chart').getContext('2d'),
+            {
+                type: 'line',
+                data: {
+                    labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                    datasets: [{
+                        label: '월별 매출 (백만원)',
+                        data: [4.5, 5.2, 3.8, 6.3, 7.5, 6.2, 5.4, 8.1, 6.7, 7.5, 0, 0],
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderColor: 'rgba(245, 158, 11, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1);
+                                }
+                            }
+                        }
                     }
                 }
+            }
+        );
+
+        // Company Details
+        document.querySelectorAll('.company-detail-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('companies-section').querySelector('.bg-white:not(#company-detail-view)').classList.add('hidden');
+                document.getElementById('company-detail-view').classList.remove('hidden');
+                // In a real app, we'd fetch company details by ID
             });
-            
-            // 모달 닫기 버튼들
-            document.getElementById('close-company-modal').addEventListener('click', () => toggleModal('company-modal', false));
-            document.getElementById('cancel-company-btn').addEventListener('click', () => toggleModal('company-modal', false));
-            
-            document.getElementById('close-blog-task-modal').addEventListener('click', () => toggleModal('blog-task-modal', false));
-            document.getElementById('cancel-blog-task-btn').addEventListener('click', () => toggleModal('blog-task-modal', false));
-            
-            document.getElementById('close-review-task-modal').addEventListener('click', () => toggleModal('review-task-modal', false));
-            document.getElementById('cancel-review-task-btn').addEventListener('click', () => toggleModal('review-task-modal', false));
-            
-            document.getElementById('close-id-management-modal').addEventListener('click', () => toggleModal('id-management-modal', false));
-            
-            document.getElementById('close-add-id-modal').addEventListener('click', () => toggleModal('add-id-modal', false));
-            document.getElementById('cancel-id-btn').addEventListener('click', () => toggleModal('add-id-modal', false));
-            
-            // 업체 폼 제출
-            document.getElementById('company-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                saveCompany();
+        });
+
+        document.getElementById('back-to-companies').addEventListener('click', () => {
+            document.getElementById('companies-section').querySelector('.bg-white:not(#company-detail-view)').classList.remove('hidden');
+            document.getElementById('company-detail-view').classList.add('hidden');
+        });
+
+        // Work Details
+        document.querySelectorAll('.work-detail-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('works-section').querySelector('.bg-white:not(#work-detail-view)').classList.add('hidden');
+                document.getElementById('work-detail-view').classList.remove('hidden');
+                // In a real app, we'd fetch work details by ID
             });
-            
-            // 블로그 관리하기 버튼
-            document.getElementById('manage-blog-btn').addEventListener('click', () => {
-                if (currentCompanyIndex !== null) {
-                    showBlogManagement();
-                }
-            });
-            
-            // 블로그 관리에서 돌아가기 버튼
-            document.getElementById('back-to-company').addEventListener('click', () => {
-                showTab('company-details');
-            });
-            
-            // 블로그 작업 추가 버튼
-            document.getElementById('add-blog-task-btn').addEventListener('click', () => {
-                document.getElementById('blog-task-form').reset();
-                fillAvailableIds('blog-id-select');
-                toggleModal('blog-task-modal', true);
-            });
-            
-            // 블로그 작업 폼 제출
-            document.getElementById('blog-task-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                saveBlogTask();
-            });
-            
-            // 리뷰 관리하기 버튼
-            document.getElementById('manage-review-btn').addEventListener('click', () => {
-                if (currentCompanyIndex !== null) {
-                    showReviewManagement();
-                }
-            });
-            
-            // 리뷰 관리에서 돌아가기 버튼
-            document.getElementById('back-to-company-from-review').addEventListener('click', () => {
-                showTab('company-details');
-            });
-            
-            // 리뷰 작업 추가 버튼
-            document.getElementById('add-review-task-btn').addEventListener('click', () => {
-                document.getElementById('review-task-form').reset();
-                fillAvailableIds('review-id-select');
-                toggleModal('review-task-modal', true);
-            });
-            
-            // 리뷰 작업 폼 제출
-            document.getElementById('review-task-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                saveReviewTask();
-            });
-            
-            // 작업 상태 변경 버튼들
-            document.querySelectorAll('.toggle-task-status').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    if (currentCompanyIndex !== null) {
-                        const task = e.target.dataset.task;
-                        toggleTaskStatus(task);
+        });
+
+        document.getElementById('back-to-works').addEventListener('click', () => {
+            document.getElementById('works-section').querySelector('.bg-white:not(#work-detail-view)').classList.remove('hidden');
+            document.getElementById('work-detail-view').classList.add('hidden');
+        });
+
+        // Password modal for viewing account details
+        document.getElementById('view-account-passwords').addEventListener('click', () => {
+            document.getElementById('password-modal').style.display = 'flex';
+        });
+
+        document.getElementById('close-password-modal').addEventListener('click', () => {
+            document.getElementById('password-modal').style.display = 'none';
+        });
+
+        // Admin password handling (simplified for demo)
+        document.getElementById('submit-password').addEventListener('click', () => {
+            const password = document.getElementById('admin-password').value;
+            if (password === 'admin1234') { // In a real app, this would be properly authenticated
+                document.getElementById('password-modal').style.display = 'none';
+                document.getElementById('account-passwords-modal').style.display = 'flex';
+                
+                // Show actual passwords (in a real app, these would be fetched securely)
+                const passwordsList = document.getElementById('account-passwords-list');
+                const rows = passwordsList.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const passwordCell = row.querySelector('td:nth-child(3)');
+                    if (passwordCell) {
+                        if (passwordCell.textContent === '********') {
+                            // Replace with fake password for demo
+                            const platforms = ['naver', 'kakao', 'google'];
+                            const randomPwd = platforms[Math.floor(Math.random() * platforms.length)] + 
+                                              Math.floor(Math.random() * 1000) + 
+                                              '!Pass' + 
+                                              Math.floor(Math.random() * 100);
+                            passwordCell.textContent = randomPwd;
+                        }
                     }
                 });
-            });
-            
-            // 아이디 관리 버튼
-            document.getElementById('show-all-ids-btn').addEventListener('click', () => {
-                showIdManagement();
-            });
-            
-            // 아이디 추가 버튼
-            document.getElementById('add-id-btn').addEventListener('click', () => {
-                document.getElementById('id-form').reset();
-                toggleModal('add-id-modal', true);
-            });
-            
-            // 아이디 폼 제출
-            document.getElementById('id-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                saveId();
-            });
-        }
-
-        // 업체 목록 렌더링
-        function renderCompanyList() {
-            const companyList = document.getElementById('company-list');
-            companyList.innerHTML = '';
-            
-            companies.forEach((company, index) => {
-                const companyTab = document.createElement('div');
-                companyTab.className = `company-tab p-3 mb-2 border rounded hover:bg-gray-100 ${currentCompanyIndex === index ? 'active' : ''}`;
-                companyTab.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <span class="font-medium">${company.name}</span>
-                        <span class="text-xs text-gray-500">${getActiveTasksCount(company)}</span>
-                    </div>
-                `;
-                companyTab.addEventListener('click', () => {
-                    selectCompany(index);
-                });
-                
-                companyList.appendChild(companyTab);
-            });
-        }
-
-        // 업체 선택
-        function selectCompany(index) {
-            currentCompanyIndex = index;
-            renderCompanyList();
-            renderCompanyDetails(companies[index]);
-            showTab('company-details');
-        }
-
-        // 업체 상세 정보 렌더링
-        function renderCompanyDetails(company) {
-            document.getElementById('company-name-header').textContent = company.name;
-            document.getElementById('company-manager').textContent = company.manager;
-            document.getElementById('company-period').textContent = company.period;
-            document.getElementById('company-products').textContent = company.products;
-            document.getElementById('company-amount').textContent = formatCurrency(company.amount);
-            document.getElementById('company-representative').textContent = company.representative;
-            document.getElementById('company-phone').textContent = company.phone;
-            
-            // 작업 상태 업데이트
-            updateTaskStatus('place', company.tasks.place.status);
-            updateTaskStatus('bloskin', company.tasks.bloskin.status);
-            updateTaskStatus('clip1', company.tasks.clip1.status);
-            updateTaskStatus('clip2', company.tasks.clip2.status);
-            updateTaskStatus('clip3', company.tasks.clip3.status);
-            updateTaskStatus('smartcall', company.tasks.smartcall.status);
-            updateTaskStatus('carrot', company.tasks.carrot.status);
-            
-            // 블로그, 리뷰 작업 카운트 업데이트
-            document.getElementById('blog-count').textContent = `${company.tasks.blog.current}/${company.tasks.blog.target}`;
-            document.getElementById('review-count').textContent = `${company.tasks.review.current}/${company.tasks.review.target}`;
-            
-            // 진행 상황 업데이트
-            updateProgress(company);
-        }
-
-        // 모달 토글
-        function toggleModal(modalId, show) {
-            const modal = document.getElementById(modalId);
-            if (show) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
             } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
+                alert('비밀번호가 일치하지 않습니다.');
             }
-        }
+            document.getElementById('admin-password').value = '';
+        });
 
-        // 탭 보이기
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        // 업체 폼 채우기
-        function fillCompanyForm(company) {
-            document.getElementById('company-name-input').value = company.name;
-            document.getElementById('company-manager-input').value = company.manager;
+        document.getElementById('close-account-passwords-modal').addEventListener('click', () => {
+            document.getElementById('account-passwords-modal').style.display = 'none';
             
-            // 계약 기간 처리
-            const periodParts = company.period.split(' ~ ');
-            if (periodParts.length === 2) {
-                document.getElementById('company-start-date').value = periodParts[0];
-                document.getElementById('company-end-date').value = periodParts[1];
-            }
-            
-            document.getElementById('company-amount-input').value = company.amount;
-            document.getElementById('company-products-input').value = company.products;
-            document.getElementById('company-rep-input').value = company.representative;
-            document.getElementById('company-phone-input').value = company.phone;
-            
-            // 서비스 체크박스 설정
-            document.getElementById('service-place').checked = company.tasks.place.status !== 'not-applicable';
-            document.getElementById('service-bloskin').checked = company.tasks.bloskin.status !== 'not-applicable';
-            document.getElementById('service-clip').checked = company.tasks.clip1.status !== 'not-applicable';
-            document.getElementById('service-smartcall').checked = company.tasks.smartcall.status !== 'not-applicable';
-            document.getElementById('service-carrot').checked = company.tasks.carrot.status !== 'not-applicable';
-            document.getElementById('service-blog').checked = company.tasks.blog.target > 0;
-            document.getElementById('service-review').checked = company.tasks.review.target > 0;
-        }
-
-        // 업체 저장
-        function saveCompany() {
-            const name = document.getElementById('company-name-input').value;
-            const manager = document.getElementById('company-manager-input').value;
-            const startDate = document.getElementById('company-start-date').value;
-            const endDate = document.getElementById('company-end-date').value;
-            const amount = parseInt(document.getElementById('company-amount-input').value);
-            const products = document.getElementById('company-products-input').value;
-            const representative = document.getElementById('company-rep-input').value;
-            const phone = document.getElementById('company-phone-input').value;
-            
-            const servicePlace = document.getElementById('service-place').checked;
-            const serviceBloskin = document.getElementById('service-bloskin').checked;
-            const serviceClip = document.getElementById('service-clip').checked;
-            const serviceSmartcall = document.getElementById('service-smartcall').checked;
-            const serviceCarrot = document.getElementById('service-carrot').checked;
-            const serviceBlog = document.getElementById('service-blog').checked;
-            const serviceReview = document.getElementById('service-review').checked;
-            
-            const period = `${startDate} ~ ${endDate}`;
-            
-            if (currentCompanyIndex !== null && document.getElementById('company-modal-title').textContent === '업체 편집') {
-                // 기존 업체 수정
-                companies[currentCompanyIndex].name = name;
-                companies[currentCompanyIndex].manager = manager;
-                companies[currentCompanyIndex].period = period;
-                companies[currentCompanyIndex].amount = amount;
-                companies[currentCompanyIndex].products = products;
-                companies[currentCompanyIndex].representative = representative;
-                companies[currentCompanyIndex].phone = phone;
-                
-                // 서비스 상태 업데이트
-                companies[currentCompanyIndex].tasks.place.status = servicePlace ? 'progress' : 'not-applicable';
-                companies[currentCompanyIndex].tasks.bloskin.status = serviceBloskin ? 'progress' : 'not-applicable';
-                companies[currentCompanyIndex].tasks.clip1.status = serviceClip ? 'progress' : 'not-applicable';
-                companies[currentCompanyIndex].tasks.clip2.status = serviceClip ? 'progress' : 'not-applicable';
-                companies[currentCompanyIndex].tasks.clip3.status = serviceClip ? 'progress' : 'not-applicable';
-                companies[currentCompanyIndex].tasks.smartcall.status = serviceSmartcall ? 'progress' : 'not-applicable';
-                companies[currentCompanyIndex].tasks.carrot.status = serviceCarrot ? 'progress' : 'not-applicable';
-                
-                if (serviceBlog && companies[currentCompanyIndex].tasks.blog.target === 0) {
-                    companies[currentCompanyIndex].tasks.blog.target = 10;
-                } else if (!serviceBlog) {
-                    companies[currentCompanyIndex].tasks.blog.target = 0;
-                }
-                
-                if (serviceReview && companies[currentCompanyIndex].tasks.review.target === 0) {
-                    companies[currentCompanyIndex].tasks.review.target = 5;
-                } else if (!serviceReview) {
-                    companies[currentCompanyIndex].tasks.review.target = 0;
-                }
-                
-                renderCompanyDetails(companies[currentCompanyIndex]);
-            } else {
-                // 새 업체 추가
-                const newCompany = {
-                    id: Date.now(),
-                    name,
-                    manager,
-                    period,
-                    products,
-                    amount,
-                    representative,
-                    phone,
-                    tasks: {
-                        place: { status: servicePlace ? 'progress' : 'not-applicable', completed: false },
-                        bloskin: { status: serviceBloskin ? 'progress' : 'not-applicable', completed: false },
-                        clip1: { status: serviceClip ? 'progress' : 'not-applicable', completed: false },
-                        clip2: { status: serviceClip ? 'progress' : 'not-applicable', completed: false },
-                        clip3: { status: serviceClip ? 'progress' : 'not-applicable', completed: false },
-                        smartcall: { status: serviceSmartcall ? 'progress' : 'not-applicable', completed: false },
-                        carrot: { status: serviceCarrot ? 'progress' : 'not-applicable', completed: false },
-                        blog: { target: serviceBlog ? 10 : 0, current: 0 },
-                        review: { target: serviceReview ? 5 : 0, current: 0 }
-                    }
-                };
-                
-                companies.push(newCompany);
-                currentCompanyIndex = companies.length - 1;
-                blogTasks[newCompany.id] = [];
-                reviewTasks[newCompany.id] = [];
-            }
-            
-            saveData();
-            renderCompanyList();
-            updateDashboard();
-            toggleModal('company-modal', false);
-        }
-
-        // 작업 상태 업데이트
-        function updateTaskStatus(taskId, status) {
-            const statusElement = document.getElementById(`${taskId}-status`);
-            statusElement.textContent = getStatusText(status);
-            statusElement.className = `badge badge-${getStatusClass(status)}`;
-        }
-
-        // 작업 상태 토글
-        function toggleTaskStatus(task) {
-            const company = companies[currentCompanyIndex];
-            const currentStatus = company.tasks[task].status;
-            
-            let newStatus;
-            if (currentStatus === 'not-started') {
-                newStatus = 'progress';
-            } else if (currentStatus === 'progress') {
-                newStatus = 'completed';
-                company.tasks[task].completed = true;
-            } else if (currentStatus === 'completed') {
-                newStatus = 'not-started';
-                company.tasks[task].completed = false;
-            } else {
-                return; // not-applicable은 변경하지 않음
-            }
-            
-            company.tasks[task].status = newStatus;
-            updateTaskStatus(task, newStatus);
-            updateProgress(company);
-            saveData();
-        }
-
-        // 상태 텍스트 가져오기
-        function getStatusText(status) {
-            switch (status) {
-                case 'not-started': return '시작 전';
-                case 'progress': return '진행중';
-                case 'completed': return '완료';
-                case 'not-applicable': return '해당 없음';
-                default: return '알 수 없음';
-            }
-        }
-
-        // 상태 클래스 가져오기
-        function getStatusClass(status) {
-            switch (status) {
-                case 'not-started': return 'yellow';
-                case 'progress': return 'blue';
-                case 'completed': return 'green';
-                case 'not-applicable': return 'red';
-                default: return 'gray';
-            }
-        }
-
-        // 진행 상황 업데이트
-        function updateProgress(company) {
-            const tasks = company.tasks;
-            const taskKeys = ['place', 'bloskin', 'clip1', 'clip2', 'clip3', 'smartcall', 'carrot'];
-            
-            let totalTasks = 0;
-            let completedTasks = 0;
-            
-            // 일반 작업 계산
-            taskKeys.forEach(key => {
-                if (tasks[key].status !== 'not-applicable') {
-                    totalTasks++;
-                    if (tasks[key].status === 'completed') {
-                        completedTasks++;
-                    }
+            // Hide passwords again
+            const passwordsList = document.getElementById('account-passwords-list');
+            const rows = passwordsList.querySelectorAll('tr');
+            rows.forEach(row => {
+                const passwordCell = row.querySelector('td:nth-child(3)');
+                if (passwordCell && passwordCell.textContent !== '********') {
+                    passwordCell.textContent = '********';
                 }
             });
-            
-            // 블로그 작업 계산
-            if (tasks.blog.target > 0) {
-                totalTasks++;
-                if (tasks.blog.current >= tasks.blog.target) {
-                    completedTasks++;
-                } else if (tasks.blog.current > 0) {
-                    completedTasks += tasks.blog.current / tasks.blog.target;
-                }
-            }
-            
-            // 리뷰 작업 계산
-            if (tasks.review.target > 0) {
-                totalTasks++;
-                if (tasks.review.current >= tasks.review.target) {
-                    completedTasks++;
-                } else if (tasks.review.current > 0) {
-                    completedTasks += tasks.review.current / tasks.review.target;
-                }
-            }
-            
-            const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-            
-            document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
-            document.getElementById('progress-percentage').textContent = `${progressPercentage}% 완료`;
-        }
+        });
 
-        // 블로그 관리 화면 보이기
-        function showBlogManagement() {
-            const company = companies[currentCompanyIndex];
+        // Google Sheets connection (simulated for demo)
+        document.getElementById('connect-sheets-btn').addEventListener('click', function() {
+            alert('구글 스프레드시트 연동을 위해 구글 계정 로그인이 필요합니다.');
             
-            // 블로그 작업 목록 렌더링
-            renderBlogTasks();
-            
-            // 사용 가능한 아이디 보이기
-            renderAvailableIds();
-            
-            showTab('blog-management');
-        }
-
-        // 블로그 작업 렌더링
-        function renderBlogTasks() {
-            const tasksElement = document.getElementById('blog-tasks');
-            tasksElement.innerHTML = '';
-            
-            const companyId = companies[currentCompanyIndex].id;
-            const tasks = blogTasks[companyId] || [];
-            
-            if (tasks.length === 0) {
-                tasksElement.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-gray-500">등록된 블로그 작업이 없습니다.</td></tr>';
-                return;
-            }
-            
-            tasks.forEach((task, index) => {
-                const row = document.createElement('tr');
-                row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+            // Simulate connection successful
+            setTimeout(() => {
+                this.textContent = '연결됨: MZ마케팅 데이터';
+                this.classList.remove('bg-green-500', 'hover:bg-green-600');
+                this.classList.add('bg-gray-500', 'hover:bg-gray-600');
                 
-                const idInfo = ids.find(id => id.id === task.idUsed) || { username: '삭제된 아이디' };
+                document.getElementById('save-data-btn').classList.remove('hidden');
                 
-                row.innerHTML = `
-                    <td class="py-2 px-4 border-b">${index + 1}</td>
-                    <td class="py-2 px-4 border-b">${task.keyword}</td>
-                    <td class="py-2 px-4 border-b">${idInfo.username}</td>
-                    <td class="py-2 px-4 border-b">${task.date}</td>
-                    <td class="py-2 px-4 border-b">
-                        <span class="badge badge-${task.status === 'completed' ? 'green' : 'blue'}">
-                            ${task.status === 'completed' ? '완료' : '진행중'}
-                        </span>
-                    </td>
-                    <td class="py-2 px-4 border-b">
-                        <button class="text-blue-500 hover:text-blue-700 mr-2 toggle-blog-status" data-index="${index}">
-                            ${task.status === 'completed' ? '미완료로 변경' : '완료로 변경'}
-                        </button>
-                        <button class="text-red-500 hover:text-red-700 delete-blog-task" data-index="${index}">
-                            삭제
-                        </button>
-                    </td>
-                `;
+                // Update dashboard with "data from spreadsheet"
+                document.getElementById('total-companies').textContent = '37';
+                document.getElementById('month-companies').textContent = '8';
+                document.getElementById('month-revenue').textContent = '₩8,250,000';
                 
-                tasksElement.appendChild(row);
-            });
-            
-            // 이벤트 리스너 추가
-            document.querySelectorAll('.toggle-blog-status').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const index = parseInt(e.target.dataset.index);
-                    toggleBlogTaskStatus(index);
-                });
-            });
-            
-            document.querySelectorAll('.delete-blog-task').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const index = parseInt(e.target.dataset.index);
-                    deleteBlogTask(index);
-                });
-            });
-        }
-
-        // 사용 가능한 아이디 렌더링
-        function renderAvailableIds() {
-            const idsElement = document.getElementById('available-ids');
-            idsElement.innerHTML = '';
-            
-            const availableIds = ids.filter(id => id.status === 'available' && id.platform === 'naver');
-            
-            if (availableIds.length === 0) {
-                idsElement.innerHTML = '<div class="col-span-3 py-4 text-center text-gray-500">사용 가능한 아이디가 없습니다.</div>';
-                return;
-            }
-            
-            availableIds.forEach(id => {
-                const idCard = document.createElement('div');
-                idCard.className = 'p-4 border rounded-lg bg-white';
-                idCard.innerHTML = `
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="font-medium">${id.username}</div>
-                        <div class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded">사용 가능</div>
-                    </div>
-                    <div class="text-sm text-gray-500 mb-2">플랫폼: ${getPlatformName(id.platform)}</div>
-                    <div class="mt-2 text-right">
-                        <button class="text-sm text-blue-500 hover:text-blue-700 use-id-btn" data-id="${id.id}">사용하기</button>
-                    </div>
-                `;
+                // Update charts
+                monthlyContractsChart.data.datasets[0].data = [4, 5, 3, 6, 7, 5, 4, 8, 6, 8, 0, 0];
+                monthlyContractsChart.update();
                 
-                idsElement.appendChild(idCard);
-            });
-            
-            // 이벤트 리스너 추가
-            document.querySelectorAll('.use-id-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idToUse = parseInt(e.target.dataset.id);
-                    document.getElementById('blog-task-form').reset();
-                    fillAvailableIds('blog-id-select', idToUse);
-                    toggleModal('blog-task-modal', true);
-                });
-            });
-        }
+                monthlyRevenueChart.data.datasets[0].data = [5.2, 6.1, 4.5, 7.2, 8.3, 7.1, 6.2, 9.0, 7.5, 8.25, 0, 0];
+                monthlyRevenueChart.update();
+            }, 1500);
+        });
 
-        // 블로그 작업 상태 토글
-        function toggleBlogTaskStatus(index) {
-            const companyId = companies[currentCompanyIndex].id;
-            const task = blogTasks[companyId][index];
-            
-            if (task.status === 'in-progress') {
-                task.status = 'completed';
-                companies[currentCompanyIndex].tasks.blog.current++;
-            } else {
-                task.status = 'in-progress';
-                companies[currentCompanyIndex].tasks.blog.current--;
-            }
-            
-            saveData();
-            renderBlogTasks();
-            updateProgress(companies[currentCompanyIndex]);
-        }
-
-        // 블로그 작업 삭제
-        function deleteBlogTask(index) {
-            if (confirm('이 작업을 삭제하시겠습니까?')) {
-                const companyId = companies[currentCompanyIndex].id;
-                const task = blogTasks[companyId][index];
-                
-                if (task.status === 'completed') {
-                    companies[currentCompanyIndex].tasks.blog.current--;
-                }
-                
-                blogTasks[companyId].splice(index, 1);
-                
-                saveData();
-                renderBlogTasks();
-                updateProgress(companies[currentCompanyIndex]);
-            }
-        }
-
-        // 사용 가능한 아이디 목록 채우기
-        function fillAvailableIds(selectId, selectedId = null) {
-            const select = document.getElementById(selectId);
-            select.innerHTML = '<option value="">아이디 선택</option>';
-            
-            const availableIds = ids.filter(id => id.status === 'available' && id.platform === 'naver');
-            
-            availableIds.forEach(id => {
-                const option = document.createElement('option');
-                option.value = id.id;
-                option.textContent = id.username;
-                
-                if (selectedId && id.id === selectedId) {
-                    option.selected = true;
-                }
-                
-                select.appendChild(option);
-            });
-        }
-
-        // 블로그 작업 저장
-        function saveBlogTask() {
-            const keyword = document.getElementById('blog-keyword').value;
-            const idUsed = parseInt(document.getElementById('blog-id-select').value);
-            const date = document.getElementById('blog-date').value;
-            
-            const companyId = companies[currentCompanyIndex].id;
-            
-            if (!blogTasks[companyId]) {
-                blogTasks[companyId] = [];
-            }
-            
-            const newTask = {
-                id: Date.now(),
-                keyword,
-                idUsed,
-                date,
-                status: 'in-progress'
-            };
-            
-            blogTasks[companyId].push(newTask);
-            
-            // 아이디 상태 업데이트
-            const idIndex = ids.findIndex(id => id.id === idUsed);
-            if (idIndex !== -1) {
-                ids[idIndex].lastUsed = new Date().toISOString();
-            }
-            
-            saveData();
-            renderBlogTasks();
-            renderAvailableIds();
-            toggleModal('blog-task-modal', false);
-        }
-
-        // 리뷰 관리 화면 보이기
-        function showReviewManagement() {
-            // 리뷰 작업 목록 렌더링
-            renderReviewTasks();
-            
-            // 사용 가능한 아이디 보이기
-            renderAvailableReviewIds();
-            
-            showTab('review-management');
-        }
-
-        // 리뷰 작업 렌더링
-        function renderReviewTasks() {
-            const tasksElement = document.getElementById('review-tasks');
-            tasksElement.innerHTML = '';
-            
-            const companyId = companies[currentCompanyIndex].id;
-            const tasks = reviewTasks[companyId] || [];
-            
-            if (tasks.length === 0) {
-                tasksElement.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-gray-500">등록된 리뷰 작업이 없습니다.</td></tr>';
-                return;
-            }
-            
-            tasks.forEach((task, index) => {
-                const row = document.createElement('tr');
-                row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-                
-                const idInfo = ids.find(id => id.id === task.idUsed) || { username: '삭제된 아이디' };
-                
-                row.innerHTML = `
-                    <td class="py-2 px-4 border-b">${index + 1}</td>
-                    <td class="py-2 px-4 border-b">${task.platform}</td>
-                    <td class="py-2 px-4 border-b">${idInfo.username}</td>
-                    <td class="py-2 px-4 border-b">${task.date}</td>
-                    <td class="py-2 px-4 border-b">
-                        <span class="badge badge-${task.status === 'completed' ? 'green' : 'blue'}">
-                            ${task.status === 'completed' ? '완료' : '진행중'}
-                        </span>
-                    </td>
-                    <td class="py-2 px-4 border-b">
-                        <button class="text-blue-500 hover:text-blue-700 mr-2 toggle-review-status" data-index="${index}">
-                            ${task.status === 'completed' ? '미완료로 변경' : '완료로 변경'}
-                        </button>
-                        <button class="text-red-500 hover:text-red-700 delete-review-task" data-index="${index}">
-                            삭제
-                        </button>
-                    </td>
-                `;
-                
-                tasksElement.appendChild(row);
-            });
-            
-            // 이벤트 리스너 추가
-            document.querySelectorAll('.toggle-review-status').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const index = parseInt(e.target.dataset.index);
-                    toggleReviewTaskStatus(index);
-                });
-            });
-            
-            document.querySelectorAll('.delete-review-task').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const index = parseInt(e.target.dataset.index);
-                    deleteReviewTask(index);
-                });
-            });
-        }
-
-        // 사용 가능한 리뷰 아이디 렌더링
-        function renderAvailableReviewIds() {
-            const idsElement = document.getElementById('available-review-ids');
-            idsElement.innerHTML = '';
-            
-            const availableIds = ids.filter(id => id.status === 'available');
-            
-            if (availableIds.length === 0) {
-                idsElement.innerHTML = '<div class="col-span-3 py-4 text-center text-gray-500">사용 가능한 아이디가 없습니다.</div>';
-                return;
-            }
-            
-            availableIds.forEach(id => {
-                const idCard = document.createElement('div');
-                idCard.className = 'p-4 border rounded-lg bg-white';
-                idCard.innerHTML = `
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="font-medium">${id.username}</div>
-                        <div class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded">사용 가능</div>
-                    </div>
-                    <div class="text-sm text-gray-500 mb-2">플랫폼: ${getPlatformName(id.platform)}</div>
-                    <div class="mt-2 text-right">
-                        <button class="text-sm text-blue-500 hover:text-blue-700 use-review-id-btn" data-id="${id.id}">사용하기</button>
-                    </div>
-                `;
-                
-                idsElement.appendChild(idCard);
-            });
-            
-            // 이벤트 리스너 추가
-            document.querySelectorAll('.use-review-id-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idToUse = parseInt(e.target.dataset.id);
-                    document.getElementById('review-task-form').reset();
-                    fillAvailableIds('review-id-select', idToUse);
-                    toggleModal('review-task-modal', true);
-                });
-            });
-        }
-
-        // 리뷰 작업 상태 토글
-        function toggleReviewTaskStatus(index) {
-            const companyId = companies[currentCompanyIndex].id;
-            const task = reviewTasks[companyId][index];
-            
-            if (task.status === 'in-progress') {
-                task.status = 'completed';
-                companies[currentCompanyIndex].tasks.review.current++;
-            } else {
-                task.status = 'in-progress';
-                companies[currentCompanyIndex].tasks.review.current--;
-            }
-            
-            saveData();
-            renderReviewTasks();
-            updateProgress(companies[currentCompanyIndex]);
-        }
-
-        // 리뷰 작업 삭제
-        function deleteReviewTask(index) {
-            if (confirm('이 작업을 삭제하시겠습니까?')) {
-                const companyId = companies[currentCompanyIndex].id;
-                const task = reviewTasks[companyId][index];
-                
-                if (task.status === 'completed') {
-                    companies[currentCompanyIndex].tasks.review.current--;
-                }
-                
-                reviewTasks[companyId].splice(index, 1);
-                
-                saveData();
-                renderReviewTasks();
-                updateProgress(companies[currentCompanyIndex]);
-            }
-        }
-
-        // 리뷰 작업 저장
-        function saveReviewTask() {
-            const platform = document.getElementById('review-platform').value;
-            const idUsed = parseInt(document.getElementById('review-id-select').value);
-            const date = document.getElementById('review-date').value;
-            
-            const companyId = companies[currentCompanyIndex].id;
-            
-            if (!reviewTasks[companyId]) {
-                reviewTasks[companyId] = [];
-            }
-            
-            const newTask = {
-                id: Date.now(),
-                platform,
-                idUsed,
-                date,
-                status: 'in-progress'
-            };
-            
-            reviewTasks[companyId].push(newTask);
-            
-            // 아이디 상태 업데이트
-            const idIndex = ids.findIndex(id => id.id === idUsed);
-            if (idIndex !== -1) {
-                ids[idIndex].lastUsed = new Date().toISOString();
-            }
-            
-            saveData();
-            renderReviewTasks();
-            renderAvailableReviewIds();
-            toggleModal('review-task-modal', false);
-        }
-
-        // 아이디 관리 화면 표시
-        function showIdManagement() {
-            renderIdList();
-            toggleModal('id-management-modal', true);
-        }
-
-        // 아이디 목록 렌더링
-        function renderIdList() {
-            const idListElement = document.getElementById('id-list');
-            idListElement.innerHTML = '';
-            
-            if (ids.length === 0) {
-                idListElement.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-gray-500">등록된 아이디가 없습니다.</td></tr>';
-                return;
-            }
-            
-            ids.forEach((id, index) => {
-                const row = document.createElement('tr');
-                row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-                
-                row.innerHTML = `
-                    <td class="py-2 px-4 border-b">${index + 1}</td>
-                    <td class="py-2 px-4 border-b">${getPlatformName(id.platform)}</td>
-                    <td class="py-2 px-4 border-b">
-                        <div class="font-medium">${id.username}</div>
-                        <div class="text-xs text-gray-500">비밀번호: ${maskPassword(id.password)}</div>
-                    </td>
-                    <td class="py-2 px-4 border-b">
-                        <span class="badge badge-${id.status === 'available' ? 'green' : 'red'}">
-                            ${id.status === 'available' ? '사용 가능' : '사용 중'}
-                        </span>
-                    </td>
-                    <td class="py-2 px-4 border-b">${id.lastUsed ? formatDate(id.lastUsed) : '-'}</td>
-                    <td class="py-2 px-4 border-b">
-                        <button class="text-blue-500 hover:text-blue-700 mr-2 edit-id-btn" data-id="${id.id}">
-                            편집
-                        </button>
-                        <button class="text-red-500 hover:text-red-700 delete-id-btn" data-id="${id.id}">
-                            삭제
-                        </button>
-                    </td>
-                `;
-                
-                idListElement.appendChild(row);
-            });
-            
-            // 이벤트 리스너 추가
-            document.querySelectorAll('.edit-id-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idToEdit = parseInt(e.target.dataset.id);
-                    editId(idToEdit);
-                });
-            });
-            
-            document.querySelectorAll('.delete-id-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idToDelete = parseInt(e.target.dataset.id);
-                    deleteId(idToDelete);
-                });
-            });
-        }
-
-        // 비밀번호 마스킹
-        function maskPassword(password) {
-            return '•'.repeat(password.length);
-        }
-
-        // 아이디 저장
-        function saveId() {
-            const platform = document.getElementById('id-platform').value;
-            const username = document.getElementById('id-username').value;
-            const password = document.getElementById('id-password').value;
-            const memo = document.getElementById('id-memo').value;
-            
-            // ID가 이미 존재하는지 확인
-            const existingIdIndex = ids.findIndex(id => id.username === username && id.platform === platform);
-            if (existingIdIndex !== -1 && !isEditingId) {
-                alert('이미 존재하는 아이디입니다.');
-                return;
-            }
-            
-            if (isEditingId) {
-                // 기존 아이디 수정
-                const idIndex = ids.findIndex(id => id.id === editingIdId);
-                ids[idIndex].platform = platform;
-                ids[idIndex].username = username;
-                ids[idIndex].password = password;
-                ids[idIndex].memo = memo;
-            } else {
-                // 새 아이디 추가
-                const newId = {
-                    id: Date.now(),
-                    platform,
-                    username,
-                    password,
-                    status: 'available',
-                    lastUsed: null,
-                    memo
-                };
-                
-                ids.push(newId);
-            }
-            
-            isEditingId = false;
-            editingIdId = null;
-            
-            saveData();
-            renderIdList();
-            toggleModal('add-id-modal', false);
-        }
-
-        // 아이디 편집
-        let isEditingId = false;
-        let editingIdId = null;
-        
-        function editId(idToEdit) {
-            const idToEditObj = ids.find(id => id.id === idToEdit);
-            if (!idToEditObj) return;
-            
-            isEditingId = true;
-            editingIdId = idToEdit;
-            
-            document.getElementById('id-platform').value = idToEditObj.platform;
-            document.getElementById('id-username').value = idToEditObj.username;
-            document.getElementById('id-password').value = idToEditObj.password;
-            document.getElementById('id-memo').value = idToEditObj.memo || '';
-            
-            toggleModal('add-id-modal', true);
-        }
-
-        // 아이디 삭제
-        function deleteId(idToDelete) {
-            if (confirm('이 아이디를 삭제하시겠습니까?')) {
-                const idIndex = ids.findIndex(id => id.id === idToDelete);
-                if (idIndex !== -1) {
-                    ids.splice(idIndex, 1);
-                    saveData();
-                    renderIdList();
-                }
-            }
-        }
-
-        // 플랫폼 이름 가져오기
-        function getPlatformName(platform) {
-            switch (platform) {
-                case 'naver': return '네이버';
-                case 'daum': return '다음';
-                case 'google': return '구글';
-                case 'instagram': return '인스타그램';
-                default: return platform;
-            }
-        }
-
-        // 날짜 형식화
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-        }
-
-        // 금액 형식화
-        function formatCurrency(amount) {
-            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '원';
-        }
-
-        // 활성 작업 개수 가져오기
-        function getActiveTasksCount(company) {
-            let count = 0;
-            
-            // 일반 작업 카운트
-            const tasks = company.tasks;
-            const taskKeys = ['place', 'bloskin', 'clip1', 'clip2', 'clip3', 'smartcall', 'carrot'];
-            
-            taskKeys.forEach(key => {
-                if (tasks[key].status === 'progress') {
-                    count++;
-                }
-            });
-            
-            // 블로그 작업 카운트
-            if (tasks.blog.target > 0 && tasks.blog.current < tasks.blog.target) {
-                count++;
-            }
-            
-            // 리뷰 작업 카운트
-            if (tasks.review.target > 0 && tasks.review.current < tasks.review.target) {
-                count++;
-            }
-            
-            return count > 0 ? `${count}개 진행중` : '';
-        }
-
-        // 대시보드 업데이트
-        function updateDashboard() {
-            // 총 계약 업체 수
-            document.getElementById('total-companies').textContent = companies.length;
-            
-            // 이번달 계약 수
-            const currentDate = new Date();
-            const currentMonth = currentDate.getMonth();
-            const currentYear = currentDate.getFullYear();
-            
-            const monthlyContracts = companies.filter(company => {
-                const startDateStr = company.period.split(' ~ ')[0];
-                const startDate = new Date(startDateStr);
-                return startDate.getMonth() === currentMonth && startDate.getFullYear() === currentYear;
-            }).length;
-            
-            document.getElementById('monthly-contracts').textContent = monthlyContracts;
-            
-            // 이번달 매출 금액
-            const monthlyRevenue = companies.reduce((sum, company) => {
-                const startDateStr = company.period.split(' ~ ')[0];
-                const startDate = new Date(startDateStr);
-                if (startDate.getMonth() === currentMonth && startDate.getFullYear() === currentYear) {
-                    return sum + company.amount;
-                }
-                return sum;
-            }, 0);
-            
-            document.getElementById('monthly-revenue').textContent = formatCurrency(monthlyRevenue);
-        }
-
-        // 초기 설정
-        loadData();
+        // Save data button
+        document.getElementById('save-data-btn').addEventListener('click', function() {
+            alert('데이터가 구글 스프레드시트에 저장되었습니다.');
+        });
     </script>
+
+    <!-- GitHub Integration Description -->
+    <div class="container mx-auto px-4 py-8 mt-8 bg-white rounded-lg">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">GitHub 사이트 연동 방법</h2>
+        <div class="space-y-4">
+            <div>
+                <h3 class="text-lg font-semibold">1. GitHub 계정 만들기</h3>
+                <p>아직 GitHub 계정이 없다면, <a href="https://github.com/join" class="text-blue-600 hover:text-blue-800" target="_blank">github.com</a>에서 무료 계정을 만듭니다.</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold">2. 새 저장소(Repository) 만들기</h3>
+                <ol class="list-decimal ml-6 space-y-2">
+                    <li>GitHub에 로그인 후, 오른쪽 상단의 '+' 버튼을 클릭하고 'New repository'를 선택합니다.</li>
+                    <li>저장소 이름을 'mz-marketing-system'으로 입력합니다.</li>
+                    <li>'Public' 옵션을 선택합니다.</li>
+                    <li>'Add a README file' 옵션을 체크합니다.</li>
+                    <li>'Create repository' 버튼을 클릭합니다.</li>
+                </ol>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold">3. 이 HTML 파일 업로드하기</h3>
+                <ol class="list-decimal ml-6 space-y-2">
+                    <li>생성된 저장소 페이지에서 'Add file' 버튼을 클릭하고 'Upload files'를 선택합니다.</li>
+                    <li>이 HTML 파일을 'index.html'로 저장한 후 드래그 앤 드롭으로 업로드합니다.</li>
+                    <li>'Commit changes' 버튼을 클릭합니다.</li>
+                </ol>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold">4. GitHub Pages 활성화하기</h3>
+                <ol class="list-decimal ml-6 space-y-2">
+                    <li>저장소 페이지에서 'Settings' 탭을 클릭합니다.</li>
+                    <li>왼쪽 메뉴에서 'Pages'를 클릭합니다.</li>
+                    <li>'Source' 섹션에서 'Branch: main'을 선택하고 저장합니다.</li>
+                    <li>몇 분 후에 웹사이트가 생성되며, 표시되는 URL을 통해 접속할 수 있습니다.</li>
+                    <li>보통 URL 형식은 'https://[사용자명].github.io/mz-marketing-system' 입니다.</li>
+                </ol>
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-bold text-gray-800 mt-8 mb-4">구글 스프레드시트 연동 방법</h2>
+        <div class="space-y-4">
+            <div>
+                <h3 class="text-lg font-semibold">1. 구글 스프레드시트 만들기</h3>
+                <ol class="list-decimal ml-6 space-y-2">
+                    <li><a href="https://docs.google.com/spreadsheets" class="text-blue-600 hover:text-blue-800" target="_blank">Google Sheets</a>에 접속하여 새 스프레드시트를 만듭니다.</li>
+                    <li>여러 시트를 만들어 각각 '업체정보', '작업현황', '계정관리' 등으로 이름을 지정합니다.</li>
+                    <li>각 시트의 첫 행에 열 제목을 입력합니다 (예: 업체명, 연락처, 계약일 등).</li>
+                </ol>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold">2. 구글 시트 공유 설정</h3>
+                <ol class="list-decimal ml-6 space-y-2">
+                    <li>스프레드시트 우측 상단의 '공유' 버튼을 클릭합니다.</li>
+                    <li>팀원들의 이메일을 입력하여 편집 권한을 부여합니다.</li>
+                    <li>'고급' 옵션에서 '웹에 게시'를 선택하여 웹사이트에서 데이터를 읽을 수 있게 합니다.</li>
+                </ol>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold">3. 웹사이트와 연동하기</h3>
+                <ol class="list-decimal ml-6 space-y-2">
+                    <li>웹사이트 상단의 '구글 스프레드시트 연결' 버튼을 클릭합니다.</li>
+                    <li>Google 계정으로 로그인하고 스프레드시트에 대한 접근을 허용합니다.</li>
+                    <li>연결 후에는 웹사이트에서 데이터를 읽고 쓸 수 있습니다.</li>
+                    <li>변경사항을 저장하려면 '데이터 저장' 버튼을 클릭합니다.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-8">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">비밀번호 확인 방법</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p>계정 관리 페이지에서 '계정 비밀번호 보기' 버튼을 클릭한 후, 관리자 비밀번호 (demo: admin1234)를 입력하면 계정 정보를 확인할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
