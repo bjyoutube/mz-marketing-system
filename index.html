@@ -93,6 +93,85 @@
         tr:hover {
             background-color: #f5f5f5;
         }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button.delete {
+            background-color: #e74c3c;
+        }
+
+        button.delete:hover {
+            background-color: #c0392b;
+        }
+
+        button.save {
+            background-color: #2ecc71;
+        }
+
+        button.save:hover {
+            background-color: #27ae60;
+        }
+
+        button.cancel {
+            background-color: #95a5a6;
+        }
+
+        button.cancel:hover {
+            background-color: #7f8c8d;
+        }
+
+        .add-form {
+            margin-top: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .edit-mode input, .edit-mode select {
+            border: 2px solid #3498db;
+            background-color: #f0f8ff;
+        }
         /* 스타일 끝 */
     </style>
 </head>
@@ -122,74 +201,119 @@
         
         <section class="data-section">
             <h2>계약 정보</h2>
+            <button id="addNewBtn">새 계약 추가</button>
+            
+            <!-- 새 계약 추가 폼 -->
+            <div id="addFormContainer" class="add-form" style="display: none;">
+                <h3>새 계약 정보 입력</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="newCompany">회사명</label>
+                        <input type="text" id="newCompany" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newDate">계약일</label>
+                        <input type="date" id="newDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newAmount">계약금액</label>
+                        <input type="number" id="newAmount" placeholder="숫자만 입력" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newStatus">상태</label>
+                        <select id="newStatus" required>
+                            <option value="진행중">진행중</option>
+                            <option value="완료">완료</option>
+                            <option value="취소">취소</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <button id="saveNewBtn" class="save">저장</button>
+                    <button id="cancelNewBtn" class="cancel">취소</button>
+                </div>
+            </div>
+            
             <div id="dataTable">데이터를 불러오는 중...</div>
         </section>
     </div>
 
     <script>
         // 자바스크립트 시작
-        // 구글 스프레드시트 ID
+        // 구글 스프레드시트 ID와 연동을 위한 설정
         const SHEET_ID = '스프레드시트ID를_여기에_입력하세요';
-        // 공개 액세스를 위한 URL (나중에 설정)
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
-
+        
+        // 구글 Apps Script 웹앱 URL (나중에 설정)
+        const WEBAPP_URL = '구글_앱스_스크립트_웹앱_URL';
+        
+        // 계약 데이터 배열 (실제로는 스프레드시트에서 불러옴)
+        let contractData = [];
+        
         // 페이지 로드 시 실행
         document.addEventListener('DOMContentLoaded', function() {
             // 데이터 로드
             loadDashboardData();
             loadContractData();
+            
+            // 이벤트 리스너 설정
+            document.getElementById('addNewBtn').addEventListener('click', showAddForm);
+            document.getElementById('saveNewBtn').addEventListener('click', saveNewContract);
+            document.getElementById('cancelNewBtn').addEventListener('click', hideAddForm);
         });
-
+        
         // 대시보드 데이터 로드
-        async function loadDashboardData() {
+        function loadDashboardData() {
             try {
-                // 실제로는 여기서 구글 스프레드시트에서 데이터를 가져와야 함
-                // 지금은 테스트용 데이터로 표시
+                // 테스트용 데이터로 표시 (실제로는 스프레드시트에서 계산된 값을 가져와야 함)
                 document.getElementById('totalCompanies').textContent = '42';
                 document.getElementById('monthlyContracts').textContent = '8';
                 document.getElementById('monthlySales').textContent = '₩24,500,000';
                 
-                // 추후에 아래와 같이 실제 데이터를 불러올 예정입니다.
+                // 실제 데이터 로드 구현 (추후 개발)
                 /*
-                const response = await fetch('스프레드시트_데이터_URL');
-                const data = await response.json();
-                
-                document.getElementById('totalCompanies').textContent = data.totalCompanies;
-                document.getElementById('monthlyContracts').textContent = data.monthlyContracts;
-                document.getElementById('monthlySales').textContent = 
-                    new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' })
-                    .format(data.monthlySales);
+                fetch(`${WEBAPP_URL}?action=getDashboard`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('totalCompanies').textContent = data.totalCompanies;
+                        document.getElementById('monthlyContracts').textContent = data.monthlyContracts;
+                        document.getElementById('monthlySales').textContent = 
+                            new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' })
+                            .format(data.monthlySales);
+                    });
                 */
             } catch (error) {
                 console.error('대시보드 데이터 로드 중 오류 발생:', error);
             }
         }
-
+        
         // 계약 데이터 로드
-        async function loadContractData() {
+        function loadContractData() {
             try {
-                // 테스트용 데이터
-                const testData = [
-                    { company: '가나다 주식회사', contractDate: '2024-04-01', amount: '₩5,000,000', status: '진행중' },
-                    { company: '마바사 기업', contractDate: '2024-04-05', amount: '₩7,500,000', status: '진행중' },
-                    { company: '아자차 상사', contractDate: '2024-03-15', amount: '₩12,000,000', status: '완료' }
+                // 테스트용 데이터 (실제로는 스프레드시트에서 가져와야 함)
+                contractData = [
+                    { id: 1, company: '가나다 주식회사', contractDate: '2024-04-01', amount: 5000000, status: '진행중' },
+                    { id: 2, company: '마바사 기업', contractDate: '2024-04-05', amount: 7500000, status: '진행중' },
+                    { id: 3, company: '아자차 상사', contractDate: '2024-03-15', amount: 12000000, status: '완료' }
                 ];
                 
-                displayContractData(testData);
+                displayContractData();
                 
-                // 추후에는 아래와 같이 실제 데이터를 불러올 예정입니다.
+                // 실제 데이터 로드 구현 (추후 개발)
                 /*
-                const response = await fetch('스프레드시트_데이터_URL');
-                const data = await response.json();
-                displayContractData(data);
+                fetch(`${WEBAPP_URL}?action=getContracts`)
+                    .then(response => response.json())
+                    .then(data => {
+                        contractData = data;
+                        displayContractData();
+                    });
                 */
             } catch (error) {
                 console.error('계약 데이터 로드 중 오류 발생:', error);
             }
         }
-
+        
         // 계약 데이터 표시
-        function displayContractData(data) {
+        function displayContractData() {
             const tableContainer = document.getElementById('dataTable');
             
             // 테이블 생성
@@ -201,19 +325,29 @@
                             <th>계약일</th>
                             <th>계약금액</th>
                             <th>상태</th>
+                            <th>작업</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
             
             // 데이터 행 추가
-            data.forEach(item => {
+            contractData.forEach(item => {
+                const formattedAmount = new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' })
+                    .format(item.amount);
+                
                 tableHTML += `
-                    <tr>
-                        <td>${item.company}</td>
-                        <td>${item.contractDate}</td>
-                        <td>${item.amount}</td>
-                        <td>${item.status}</td>
+                    <tr data-id="${item.id}">
+                        <td class="data-cell company">${item.company}</td>
+                        <td class="data-cell contractDate">${item.contractDate}</td>
+                        <td class="data-cell amount">${formattedAmount}</td>
+                        <td class="data-cell status">${item.status}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="edit-btn" onclick="editRow(${item.id})">수정</button>
+                                <button class="delete" onclick="deleteRow(${item.id})">삭제</button>
+                            </div>
+                        </td>
                     </tr>
                 `;
             });
@@ -224,6 +358,250 @@
             `;
             
             tableContainer.innerHTML = tableHTML;
+        }
+        
+        // 행 수정 모드로 전환
+        function editRow(id) {
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (!row) return;
+            
+            // 현재 계약 데이터 찾기
+            const item = contractData.find(contract => contract.id === id);
+            if (!item) return;
+            
+            // 행을 수정 모드로 변경
+            row.classList.add('edit-mode');
+            
+            const cells = row.querySelectorAll('.data-cell');
+            
+            // 회사명 셀
+            cells[0].innerHTML = `<input type="text" value="${item.company}" class="edit-company">`;
+            
+            // 계약일 셀
+            cells[1].innerHTML = `<input type="date" value="${item.contractDate}" class="edit-date">`;
+            
+            // 금액 셀
+            cells[2].innerHTML = `<input type="number" value="${item.amount}" class="edit-amount">`;
+            
+            // 상태 셀
+            cells[3].innerHTML = `
+                <select class="edit-status">
+                    <option value="진행중" ${item.status === '진행중' ? 'selected' : ''}>진행중</option>
+                    <option value="완료" ${item.status === '완료' ? 'selected' : ''}>완료</option>
+                    <option value="취소" ${item.status === '취소' ? 'selected' : ''}>취소</option>
+                </select>
+            `;
+            
+            // 작업 버튼 변경
+            const actionCell = row.querySelector('.action-buttons');
+            actionCell.innerHTML = `
+                <button class="save" onclick="saveRow(${id})">저장</button>
+                <button class="cancel" onclick="cancelEdit(${id})">취소</button>
+            `;
+        }
+        
+        // 행 수정 취소
+        function cancelEdit(id) {
+            displayContractData(); // 원래 데이터로 테이블 다시 그리기
+        }
+        
+        // 행 수정 저장
+        function saveRow(id) {
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (!row) return;
+            
+            // 수정된 데이터 가져오기
+            const editedCompany = row.querySelector('.edit-company').value;
+            const editedDate = row.querySelector('.edit-date').value;
+            const editedAmount = parseInt(row.querySelector('.edit-amount').value);
+            const editedStatus = row.querySelector('.edit-status').value;
+            
+            // 유효성 검사
+            if (!editedCompany || !editedDate || isNaN(editedAmount)) {
+                alert('모든 필드를 올바르게 입력해주세요.');
+                return;
+            }
+            
+            // 데이터 업데이트
+            const itemIndex = contractData.findIndex(contract => contract.id === id);
+            if (itemIndex !== -1) {
+                contractData[itemIndex] = {
+                    ...contractData[itemIndex],
+                    company: editedCompany,
+                    contractDate: editedDate,
+                    amount: editedAmount,
+                    status: editedStatus
+                };
+                
+                // 스프레드시트 업데이트 (실제 구현 시)
+                updateSpreadsheet(id, contractData[itemIndex]);
+                
+                // 테이블 다시 그리기
+                displayContractData();
+            }
+        }
+        
+        // 행 삭제
+        function deleteRow(id) {
+            if (confirm('정말 이 계약을 삭제하시겠습니까?')) {
+                // 데이터에서 해당 항목 제거
+                contractData = contractData.filter(contract => contract.id !== id);
+                
+                // 스프레드시트에서 삭제 (실제 구현 시)
+                deleteFromSpreadsheet(id);
+                
+                // 테이블 다시 그리기
+                displayContractData();
+                
+                // 대시보드 업데이트
+                loadDashboardData();
+            }
+        }
+        
+        // 스프레드시트 업데이트 (실제 구현 시 사용)
+        function updateSpreadsheet(id, data) {
+            console.log('스프레드시트 업데이트:', id, data);
+            
+            // 실제 구현 (추후 개발)
+            /*
+            fetch(WEBAPP_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'updateContract',
+                    id: id,
+                    data: data
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Update result:', result);
+                // 업데이트 후 대시보드 갱신
+                loadDashboardData();
+            })
+            .catch(error => {
+                console.error('Error updating spreadsheet:', error);
+                alert('데이터 업데이트 중 오류가 발생했습니다.');
+            });
+            */
+        }
+        
+        // 스프레드시트에서 삭제 (실제 구현 시 사용)
+        function deleteFromSpreadsheet(id) {
+            console.log('스프레드시트에서 삭제:', id);
+            
+            // 실제 구현 (추후 개발)
+            /*
+            fetch(WEBAPP_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'deleteContract',
+                    id: id
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Delete result:', result);
+                // 삭제 후 대시보드 갱신
+                loadDashboardData();
+            })
+            .catch(error => {
+                console.error('Error deleting from spreadsheet:', error);
+                alert('데이터 삭제 중 오류가 발생했습니다.');
+            });
+            */
+        }
+        
+        // 새 계약 추가 폼 표시
+        function showAddForm() {
+            document.getElementById('addFormContainer').style.display = 'block';
+            document.getElementById('addNewBtn').style.display = 'none';
+        }
+        
+        // 새 계약 추가 폼 숨기기
+        function hideAddForm() {
+            document.getElementById('addFormContainer').style.display = 'none';
+            document.getElementById('addNewBtn').style.display = 'block';
+            
+            // 폼 초기화
+            document.getElementById('newCompany').value = '';
+            document.getElementById('newDate').value = '';
+            document.getElementById('newAmount').value = '';
+            document.getElementById('newStatus').value = '진행중';
+        }
+        
+        // 새 계약 저장
+        function saveNewContract() {
+            // 입력값 가져오기
+            const company = document.getElementById('newCompany').value;
+            const contractDate = document.getElementById('newDate').value;
+            const amount = parseInt(document.getElementById('newAmount').value);
+            const status = document.getElementById('newStatus').value;
+            
+            // 유효성 검사
+            if (!company || !contractDate || isNaN(amount)) {
+                alert('모든 필드를 올바르게 입력해주세요.');
+                return;
+            }
+            
+            // 새 계약 데이터 생성
+            const newId = contractData.length > 0 ? Math.max(...contractData.map(item => item.id)) + 1 : 1;
+            const newContract = {
+                id: newId,
+                company: company,
+                contractDate: contractDate,
+                amount: amount,
+                status: status
+            };
+            
+            // 데이터에 추가
+            contractData.push(newContract);
+            
+            // 스프레드시트에 추가 (실제 구현 시)
+            addToSpreadsheet(newContract);
+            
+            // 테이블 다시 그리기
+            displayContractData();
+            
+            // 폼 숨기기 및 초기화
+            hideAddForm();
+            
+            // 대시보드 업데이트
+            loadDashboardData();
+        }
+        
+        // 스프레드시트에 새 계약 추가 (실제 구현 시 사용)
+        function addToSpreadsheet(data) {
+            console.log('스프레드시트에 추가:', data);
+            
+            // 실제 구현 (추후 개발)
+            /*
+            fetch(WEBAPP_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'addContract',
+                    data: data
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Add result:', result);
+                // 추가 후 대시보드 갱신
+                loadDashboardData();
+            })
+            .catch(error => {
+                console.error('Error adding to spreadsheet:', error);
+                alert('데이터 추가 중 오류가 발생했습니다.');
+            });
+            */
         }
         // 자바스크립트 끝
     </script>
